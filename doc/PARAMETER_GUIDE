@@ -1,0 +1,31 @@
+########################### < PARAMETER GUIDE > ###############################
+
+ 1. <string> type parameter
+
+ -t : Target FASTA-type file(s).
+ -q : Query FASTA-type file(s).
+ -o : Output file name.
+
+   These parameters are mandantory.
+
+ 2. <int> type parameter
+
+ -tRAM     : CPU-RAM usage for target (MBase).     default : 64    max : --
+ -qRAM     : CPU-RAM usage for query  (MBase).     default : 64    max : --
+ -tVRAM    : GPU-VRAM usage for target(MBase).     default : 64    max : --
+ -qVRAM    : GPU-VRAM usage for query (MBase).     default : 2     max : --
+ -lMer     : l-mer length.                         default : 15    max : 31
+ -stride   : l-mer stride.                         default : 5     max : --
+ -repeat   : cut repeat num / work (-1:unlimited). default : 20    max : --
+ -width    : Allowable width length
+               between seeds at filtering.         default : 1000  max : --
+ -gap      : Allowable gap.                        default : 8     max : 16   min : 2
+ -numOut   : Number of output   (-1: unlimited).   default : -1    max : --
+ -local    : select local-alignment(not 0)
+                or global-alignment(0).            default : 0
+ -device   : Decive ID.                            default : 0
+ -sleep    : interval sleep time(sec).             default : 0
+
+ 3. <double> type parameter
+
+ -cutOff : cut off E-value (-1: no cut off). default : 10 max : --
