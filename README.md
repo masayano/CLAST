@@ -10,4 +10,4 @@ Please read files in "doc".
 
 0.1.1 Jan.19, 2015:  
     (1) more dense alignment is now available.  
-    (2) florting point value i…now available for tRAM, qRAM, tVRAM, and qVRAM in command line parameter
+    (2) florting point value is now available for tRAM, qRAM, tVRAM, and qVRAM in command line parameter
