@@ -10,13 +10,13 @@
 
  2. <int> type parameter
 
- -lMer   : l-mer length.                         default : 15    max : 31
- -stride : l-mer stride.                         default : 5     max : --
- -repeat : cut repeat num / work (-1:unlimited). default : 20    max : --
+ -lMer   : l-mer length.                         default : 15   max : 31
+ -stride : l-mer stride.                         default : 5    max : --
+ -repeat : cut repeat num / work (-1:unlimited). default : 20   max : --
  -width  : Allowable width length
-             between seeds at filtering.         default : 1000  max : --
- -gap    : Allowable gap.                        default : 16    max : 16   min : 2
- -numOut : Number of output   (-1: unlimited).   default : -1    max : --
+             between seeds at filtering.         default : 100  max : --
+ -gap    : Allowable gap.                        default : 16   max : 16   min : 2
+ -numOut : Number of output   (-1: unlimited).   default : -1   max : --
  -local  : select local-alignment(not 0)
               or global-alignment(0).            default : 0
  -device : Decive ID.                            default : 0
