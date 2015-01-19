@@ -28,6 +28,7 @@
 5. CLAST is now in "~/NVIDIA_GPU_Computing_SDK/C/bin/linux(or other)/release".
 
 ex: CLAST needs NVIDIA Fermi/Kepler architecture GPU.
+    If "sudo make" or "make" does not work, please edit "Makefile".
 
 ########################## < CAUTION > ############################
 
