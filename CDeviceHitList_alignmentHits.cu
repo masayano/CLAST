@@ -133,6 +133,7 @@ void alignmentHits(
 		thrust::device_vector<int>& qHitLengthArray,
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray) {
+        using namespace thrust;
         #ifdef TIME_ATTACK
                 float elapsed_time_ms=0.0f;
                 cudaEvent_t start, stop;
@@ -141,8 +142,20 @@ void alignmentHits(
                 cudaEventRecord( start, 0 );
                 std::cout << "  ...allignment seeds";
         #endif /* TIME_ATTACK */
-	const int blockDim_x = 32;
-	const int  hitNum = targetIDArray.size();
+        const int initBlockDim_x  = 256;
+	const int alignBlockDim_x = 32;
+	const int hitNum = targetIDArray.size();
+        const int allowableGap = s.getAllowableGap();
+        const int tempNodeWidth = 1 + 2 * (allowableGap + MARGIN);
+        const int tempNodeArraySize = hitNum * tempNodeWidth;
+        device_vector<int> tempNodeArray_score     (tempNodeArraySize);
+        device_vector<int> tempNodeArray_vertical  (tempNodeArraySize);
+        device_vector<int> tempNodeArray_horizontal(tempNodeArraySize);
+        device_vector<int> tempNodeArray_matchNum  (tempNodeArraySize);
+        const int  initBlockNum = (tempNodeArraySize / initBlockDim_x) + 1;
+        const dim3 initTempNodeBlock(65535, (initBlockNum/65535)+1, 1);
+        const int  alignBlockNum = (hitNum/alignBlockDim_x)+1;
+        const dim3 alignNodeBlock(65535, (alignBlockNum/65535)+1, 1);
 	if(s.getFlgLocal()) {
 		sortBeforeAlignBackWard(
 				q_begin,
@@ -155,16 +168,7 @@ void alignmentHits(
 				qHitLengthArray,
 				matchNumArray,
 				scoreArray);
-		const int allowableGap = s.getAllowableGap();
-		const int tempNodeWidth = 1 + 2 * (allowableGap + MARGIN);
-		const int tempNodeArraySize = hitNum * tempNodeWidth;
-		thrust::device_vector<int> tempNodeArray_score     (tempNodeArraySize);
-		thrust::device_vector<int> tempNodeArray_vertical  (tempNodeArraySize);
-		thrust::device_vector<int> tempNodeArray_horizontal(tempNodeArraySize);
-		thrust::device_vector<int> tempNodeArray_matchNum  (tempNodeArraySize);
-		const int blockNum = (tempNodeArraySize / 256) + 1;
-		const dim3 initTempNodeBlock(65535, (blockNum/65535)+1, 1);
-		initTempNodeArray<<<initTempNodeBlock, 256>>>(
+		initTempNodeArray<<<initTempNodeBlock, initBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				raw_pointer_cast( &*tempNodeArray_score     .begin() ),
@@ -172,7 +176,7 @@ void alignmentHits(
 				raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
 				raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
 		);
-		localAlignBackward<<<(hitNum/blockDim_x)+1, blockDim_x>>>(
+		localAlignBackward<<<alignNodeBlock, alignBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				t_begin,
@@ -205,7 +209,7 @@ void alignmentHits(
 				qHitLengthArray,
 				matchNumArray,
 				scoreArray);
-                initTempNodeArray<<<initTempNodeBlock, 256>>>(
+                initTempNodeArray<<<initTempNodeBlock, initBlockDim_x>>>(
                                 hitNum,
                                 allowableGap,
                                 raw_pointer_cast( &*tempNodeArray_score     .begin() ),
@@ -213,7 +217,7 @@ void alignmentHits(
                                 raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
                                 raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
                 );
-		localAlignForward<<<(hitNum/blockDim_x)+1, blockDim_x>>>(
+		localAlignForward<<<alignNodeBlock, alignBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				t_begin,
@@ -249,16 +253,7 @@ void alignmentHits(
 				qHitLengthArray,
 				matchNumArray,
 				scoreArray);
-		const int allowableGap = s.getAllowableGap();
-		const int tempNodeWidth = 1 + 2 * (allowableGap + MARGIN);
-                const int tempNodeArraySize = hitNum * tempNodeWidth;
-                thrust::device_vector<int> tempNodeArray_score     (tempNodeArraySize);
-                thrust::device_vector<int> tempNodeArray_vertical  (tempNodeArraySize);
-                thrust::device_vector<int> tempNodeArray_horizontal(tempNodeArraySize);
-                thrust::device_vector<int> tempNodeArray_matchNum  (tempNodeArraySize);
-                const int blockNum = (tempNodeArraySize / 256) + 1;
-                const dim3 initTempNodeBlock(65535, (blockNum/65535)+1, 1);
-		initTempNodeArray<<<initTempNodeBlock, 256>>>(
+		initTempNodeArray<<<initTempNodeBlock, initBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				raw_pointer_cast( &*tempNodeArray_score     .begin() ),
@@ -266,7 +261,7 @@ void alignmentHits(
 				raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
 				raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
 		);
-		globalAlignBackward<<<(hitNum/blockDim_x)+1, blockDim_x>>>(
+		globalAlignBackward<<<alignNodeBlock, alignBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				t_begin,
@@ -299,7 +294,7 @@ void alignmentHits(
 				qHitLengthArray,
 				matchNumArray,
 				scoreArray);
-		initTempNodeArray<<<initTempNodeBlock, 256>>>(
+		initTempNodeArray<<<initTempNodeBlock, initBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				raw_pointer_cast( &*tempNodeArray_score     .begin() ),
@@ -307,7 +302,7 @@ void alignmentHits(
 				raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
 				raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
 		);
-		globalAlignForward<<<(hitNum/blockDim_x)+1, blockDim_x>>>(
+		globalAlignForward<<<alignNodeBlock, alignBlockDim_x>>>(
 				hitNum,
 				allowableGap,
 				t_begin,

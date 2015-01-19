@@ -38,10 +38,10 @@ void listenCommandLine_start(
 
 void listenCommandLine_tRAM(
 		const std::string& arg,
-		int& targetRAMSize,
+		double& targetRAMSize,
 		STATE_LIST& state) {
 	try {
-		targetRAMSize = boost::lexical_cast<int>(arg);
+		targetRAMSize = boost::lexical_cast<double>(arg);
 		state = START;
 	} catch (boost::bad_lexical_cast) {
 		std::cout << "  error : Odd parameter was inputted. Check the after of \"-tRAM\"." << std::endl;
@@ -51,10 +51,10 @@ void listenCommandLine_tRAM(
 
 void listenCommandLine_qRAM(
 		const std::string& arg,
-		int& queryRAMSize,
+		double& queryRAMSize,
 		STATE_LIST& state) {
 	try {
-		queryRAMSize = boost::lexical_cast<int>(arg);
+		queryRAMSize = boost::lexical_cast<double>(arg);
 		state = START;
 	} catch (boost::bad_lexical_cast) {
 		std::cout << "  error : Odd parameter was inputted. Check the after of \"-qRAM\"." << std::endl;
@@ -64,10 +64,10 @@ void listenCommandLine_qRAM(
 
 void listenCommandLine_tVRAM(
 		const std::string& arg,
-		int& targetVRAMSize,
+		double& targetVRAMSize,
 		STATE_LIST& state) {
 	try {
-		targetVRAMSize = boost::lexical_cast<int>(arg);
+		targetVRAMSize = boost::lexical_cast<double>(arg);
 		state = START;
 	} catch (boost::bad_lexical_cast) {
 		std::cout << "  error : Odd parameter was inputted. Check the after of \"-tVRAM\"." << std::endl;
@@ -77,10 +77,10 @@ void listenCommandLine_tVRAM(
 
 void listenCommandLine_qVRAM(
 		const std::string& arg,
-		int& queryVRAMSize,
+		double& queryVRAMSize,
 		STATE_LIST& state) {
 	try {
-		queryVRAMSize = boost::lexical_cast<int>(arg);
+		queryVRAMSize = boost::lexical_cast<double>(arg);
 		state = START;
 	} catch (boost::bad_lexical_cast) {
 		std::cout << "  error : Odd parameter was inputted. Check the after of \"-qVRAM\"." << std::endl;
@@ -281,10 +281,10 @@ void listenCommandLine_oFile(
 void listenCommandLine(
 		const int argc,
 		const char** argv,
-		int& targetRAMSize,
-		int& queryRAMSize,
-		int& targetVRAMSize,
-		int& queryVRAMSize,
+		double& targetRAMSize,
+		double& queryRAMSize,
+		double& targetVRAMSize,
+		double& queryVRAMSize,
 		int& lMerLength,
 		int& strideLength,
 		int& cutRepeat,

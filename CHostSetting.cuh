@@ -5,10 +5,10 @@
 #include <vector>
 
 class CHostSetting {
-	int targetRAMSize;
-	int queryRAMSize;
-	int targetVRAMSize;
-	int queryVRAMSize;
+	double targetRAMSize;
+	double queryRAMSize;
+	double targetVRAMSize;
+	double queryVRAMSize;
 	int lMerLength;
 	int strideLength;
 	int cutRepeat;
@@ -27,10 +27,10 @@ class CHostSetting {
 	double lambda;
 public:
 	CHostSetting(const int argc, const char** argv);
-	int getTargetRAMSize  (void) const;
-	int getQueryRAMSize   (void) const;
-	int getTargetVRAMSize (void) const;
-	int getQueryVRAMSize  (void) const;
+	double getTargetRAMSize  (void) const;
+	double getQueryRAMSize   (void) const;
+	double getTargetVRAMSize (void) const;
+	double getQueryVRAMSize  (void) const;
 	int getLMerLength     (void) const;
 	int getStrideLength   (void) const;
 	int getCutRepeat      (void) const;

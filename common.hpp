@@ -9,10 +9,10 @@
 //#define TIME_ATTACK
 
 /* default setting (config.txt) */
-const int DEFAULT_TARGET_RAM_SIZE    = 64;
-const int DEFAULT_QUERY_RAM_SIZE     = 64;
-const int DEFAULT_TARGET_VRAM_SIZE   = 64;
-const int DEFAULT_QUERY_VRAM_SIZE    = 2;
+const double DEFAULT_TARGET_RAM_SIZE    = 64;
+const double DEFAULT_QUERY_RAM_SIZE     = 64;
+const double DEFAULT_TARGET_VRAM_SIZE   = 64;
+const double DEFAULT_QUERY_VRAM_SIZE    = 2;
 const int DEFAULT_L_MER_LENGTH       = 15;
 const int DEFAULT_STRIDE_LENGTH      = 5;
 const int DEFAULT_CUT_REPEAT         = 20;

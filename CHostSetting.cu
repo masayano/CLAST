@@ -141,10 +141,10 @@ CHostSetting::CHostSetting(const int argc, const char** argv) {
 	lambda = GLOBAL_LAMBDA;
 }
 
-int CHostSetting::getTargetRAMSize  (void) const { return targetRAMSize; }
-int CHostSetting::getQueryRAMSize   (void) const { return queryRAMSize; }
-int CHostSetting::getTargetVRAMSize (void) const { return targetVRAMSize; }
-int CHostSetting::getQueryVRAMSize  (void) const { return queryVRAMSize; }
+double CHostSetting::getTargetRAMSize  (void) const { return targetRAMSize; }
+double CHostSetting::getQueryRAMSize   (void) const { return queryRAMSize; }
+double CHostSetting::getTargetVRAMSize (void) const { return targetVRAMSize; }
+double CHostSetting::getQueryVRAMSize  (void) const { return queryVRAMSize; }
 int CHostSetting::getLMerLength     (void) const { return lMerLength; }
 int CHostSetting::getStrideLength   (void) const { return strideLength; }
 int CHostSetting::getCutRepeat      (void) const { return cutRepeat; }
