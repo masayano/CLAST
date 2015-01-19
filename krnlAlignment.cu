@@ -103,7 +103,8 @@ __global__ void globalAlignBackward(
 		int* tempNodeArray_vertical,
 		int* tempNodeArray_horizontal,
 		int* tempNodeArray_matchNum) {
-	const int hitIdx = blockDim.x * blockIdx.x + threadIdx.x;
+        const int bIdx = gridDim.x * blockIdx.y + blockIdx.x;
+	const int hitIdx = blockDim.x * bIdx + threadIdx.x;
 	if(hitIdx < hitNum) {
 		/* define of consts (common) */
 		const int tID        = targetIDArray   [hitIdx];
@@ -219,7 +220,8 @@ __global__ void globalAlignForward(
 		int* tempNodeArray_vertical,
 		int* tempNodeArray_horizontal,
 		int* tempNodeArray_matchNum) {
-	const int hitIdx = blockDim.x * blockIdx.x + threadIdx.x;
+        const int bIdx = gridDim.x * blockIdx.y + blockIdx.x;
+        const int hitIdx = blockDim.x * bIdx + threadIdx.x;
 	if(hitIdx < hitNum) {
 		/* define of consts (common) */
 		const int tID  = targetIDArray   [hitIdx];
@@ -334,7 +336,8 @@ __global__ void localAlignBackward(
 		int* tempNodeArray_vertical,
 		int* tempNodeArray_horizontal,
 		int* tempNodeArray_matchNum) {
-	const int hitIdx = blockDim.x * blockIdx.x + threadIdx.x;
+        const int bIdx = gridDim.x * blockIdx.y + blockIdx.x;
+        const int hitIdx = blockDim.x * bIdx + threadIdx.x;
 	if(hitIdx < hitNum) {
 		/* define of consts (common) */
 		const int tID       = targetIDArray   [hitIdx];
@@ -447,7 +450,8 @@ __global__ void localAlignForward(
 		int* tempNodeArray_vertical,
 		int* tempNodeArray_horizontal,
 		int* tempNodeArray_matchNum) {
-	const int hitIdx = blockDim.x * blockIdx.x + threadIdx.x;
+        const int bIdx = gridDim.x * blockIdx.y + blockIdx.x;
+        const int hitIdx = blockDim.x * bIdx + threadIdx.x;
 	if(hitIdx < hitNum) {
 		/* define of consts (common) */
 		const int tID  = targetIDArray   [hitIdx];
