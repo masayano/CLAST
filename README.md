@@ -14,4 +14,4 @@ Please read files in "doc".
 
 0.1.2 Apr.26, 2015:  
     Add "CDeviceHitList_alignmentHits.cuh.7.0" for CUDA 7.0.  
-    Now CLAST can be built if it will be renamed "CDeviceHitList_alignmentHits.cuh".
+    Now CLAST can be built on CUDA 7.0 if it will be renamed "CDeviceHitList_alignmentHits.cuh".
