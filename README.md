@@ -56,7 +56,8 @@ GNU GPL
 
 # VERSION
 
-0.1.0 Feb.5,  2014: first version.  
+0.1.0 Feb.5,  2014:  
+    first version.
 
 0.1.1 Jan.19, 2015:  
     (1) more dense alignment is now available.  
@@ -69,6 +70,7 @@ GNU GPL
     ~~Please use CUDA 5.5 or CUDA 4.x, and Fermi or Kepler architecture GPU.~~
 
 0.1.3 Nov.19, 2015:  
+    Fixed a bug.  
     Remove "CDeviceHitList_alignmentHits.cuh.7.0".  
     Remove "doc/READ_ME*".  
     Remove "Makefile.＊".  

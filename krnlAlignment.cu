@@ -118,7 +118,7 @@ __global__ void globalAlignBackward(
 		const int qHitLength = qHitLengthArray[hitIdx];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH - 2];
+		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
 		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
 		const int alignmentWidth     = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
@@ -232,7 +232,7 @@ __global__ void globalAlignForward(
 		const int qStartIdx = qGateway[qID - q_begin];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH - 2];
+		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
 		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
@@ -351,7 +351,7 @@ __global__ void localAlignBackward(
 		const int qHitLength = qHitLengthArray[hitIdx];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH - 2];
+		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
 		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
@@ -462,7 +462,7 @@ __global__ void localAlignForward(
 		const int qStartIdx = qGateway[qID - q_begin];
 
 		/* initialize target base on resister */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH - 2];
+		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
 		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
