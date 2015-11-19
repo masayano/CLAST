@@ -14,7 +14,7 @@ CUDA implemented large-scale alignment search tool
 
 ### 1. Go to "clast" directory.
 
-### 2. Edit "Makefile".
+### 2. Edit "Makefile" (if you need).
 
 You only need to edit "CUDA_PATH" and "GENCODE_FLAGS".
 
@@ -68,7 +68,7 @@ GNU GPL
     But it does not work.  
     Please use CUDA 5.5 or CUDA 4.x, and Fermi or Kepler architecture GPU.
 
-0.1.3 Nov.19, 2015:
+0.1.3 Nov.19, 2015:  
     Remove "CDeviceHitList_alignmentHits.cuh.7.0".  
     Remove "doc/READ_ME*".  
     Remove "Makefile.*".  
