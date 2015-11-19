@@ -22,6 +22,8 @@ You only need to edit "CUDA_PATH" and "GENCODE_FLAGS".
 
 ### 4. CLAST is now in your current directory.
 
+### 5. Check PARAMETER_GUIDE and use CLAST
+
 # CAUTION
 
    Result may contain odd result due to GPU memory error.
@@ -67,7 +69,7 @@ GNU GPL
     Please use CUDA 5.5 or CUDA 4.x, and Fermi or Kepler architecture GPU.
 
 0.1.3 Nov.19, 2015:
-    Remove "CDeviceHitList_alignmentHits.cuh.7.0".
-    Remove "doc/READ_ME*".
-    Remove "Makefile.*"
-    Edit "README.md".
+    Remove "CDeviceHitList_alignmentHits.cuh.7.0".  
+    Remove "doc/READ_ME*".  
+    Remove "Makefile.*".  
+    Edit "README.md".  
