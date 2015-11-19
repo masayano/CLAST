@@ -5,22 +5,22 @@ CUDA implemented large-scale alignment search tool
 
 ## Build
 
-### Dependenies.
+### 0. Dependenies.
 
-CUDA (version 4.0~)  
-"boost library"  
-"thrust library (version ~1.7)" <- very important  
-NVIDIA GPU (newer than Fermi architecture)
+1. CUDA (version 4.0~)  
+2. "boost library"  
+3. "thrust library (version ~1.7)" <- very important  
+4. NVIDIA GPU (newer than Fermi architecture)
 
-### Go to "clast" directory.
+### 1. Go to "clast" directory.
 
-### Edit "Makefile".
+### 2. Edit "Makefile".
 
-You only need to edit CUDA_PATH and "GENCODE_FLAGS".
+You only need to edit "CUDA_PATH" and "GENCODE_FLAGS".
 
-### Do "make".
+### 3. Do "make".
 
-### CLAST is now in your current directory.
+### 4. CLAST is now in your current directory.
 
 # CAUTION
 
@@ -30,15 +30,15 @@ You only need to edit CUDA_PATH and "GENCODE_FLAGS".
 
    Result file is sepalated by tab.
 
-0: queryLabel
-1: query side start index
-2: query side hit length
-3: query strand ("+" or "-")
-4: targetLabel
-5: target side start index
-6: target side hit length
-7: identity ("match num" / "query side hit length" * 100 %)
-8: score
+0: queryLabel  
+1: query side start index  
+2: query side hit length  
+3: query strand ("+" or "-")  
+4: targetLabel  
+5: target side start index  
+6: target side hit length  
+7: identity ("match num" / "query side hit length" * 100 %)  
+8: score  
 9: E-value
 
 # FOR LARGE REFERENCE SEQUENCES
