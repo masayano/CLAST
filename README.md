@@ -74,4 +74,7 @@ GNU GPL
     Remove "CDeviceHitList_alignmentHits.cuh.7.0".  
     Remove "doc/READ_ME*".  
     Remove "Makefile.＊".  
-    Edit "README.md".  
+    Edit "README.md".
+
+0.1.4 Nov.20, 2015:  
+    Refactored "krnlAlignment.cu" and "common.hpp". 

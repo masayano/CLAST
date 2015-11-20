@@ -3,8 +3,6 @@
 
 #include "common.hpp"
 
-const int blockDim_x = 32;
-
 __global__ void initTempNodeArray(
 		const int hitNum,
 		const int allowableGap,
@@ -118,15 +116,14 @@ __global__ void globalAlignBackward(
 		const int qHitLength = qHitLengthArray[hitIdx];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
-		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
+		char targetBaseArray[MAX_ALIGNMENT_WIDTH];
 		const int alignmentWidth     = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
 			const int tBaseIdx = tIdx + qHitLength - allowableGap + t;
 			if(tBaseIdx >= tLength) {
-				pTargetBaseArray[t] = BAD_AREA_CHAR;
+				targetBaseArray[t] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 		}
 
@@ -146,7 +143,7 @@ __global__ void globalAlignBackward(
 				pTempNode_horizontal += hitNum;
 				pTempNode_matchNum   += hitNum;
 				calcutlateCell(
-						pTargetBaseArray[shrdTargetIdx++],
+						targetBaseArray[shrdTargetIdx++],
 						queryBase,
 						*(pTempNode_score    + hitNum),//
 						*(pTempNode_vertical + hitNum),// lower
@@ -162,9 +159,9 @@ __global__ void globalAlignBackward(
 			}
 			const int tBaseIdx = tIdx + qHitLength + allowableGap + q + 1;
 			if(tBaseIdx >= tLength) {
-				pTargetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
+				targetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 			++shrdTargetIdx;
 			if(shrdTargetIdx == alignmentWidth) { shrdTargetIdx = 0; }
@@ -232,15 +229,14 @@ __global__ void globalAlignForward(
 		const int qStartIdx = qGateway[qID - q_begin];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
-		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
+		char targetBaseArray[MAX_ALIGNMENT_WIDTH];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
 			const int tBaseIdx = tIdx + allowableGap - t - 1;
 			if(tBaseIdx < 0) {
-				pTargetBaseArray[t] = BAD_AREA_CHAR;
+				targetBaseArray[t] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 		}
 
@@ -258,7 +254,7 @@ __global__ void globalAlignForward(
 				pTempNode_horizontal += hitNum;
 				pTempNode_matchNum   += hitNum;
 				calcutlateCell(
-						pTargetBaseArray[shrdTargetIdx++],
+						targetBaseArray[shrdTargetIdx++],
 						queryBase,
 						*(pTempNode_score    + hitNum),//
 						*(pTempNode_vertical + hitNum),// upper
@@ -274,9 +270,9 @@ __global__ void globalAlignForward(
 			}
 			const int tBaseIdx = tIdx - allowableGap - q - 2;
 			if(tBaseIdx < 0) {
-				pTargetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
+				targetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 			++shrdTargetIdx;
 			if(shrdTargetIdx == alignmentWidth) { shrdTargetIdx = 0; }
@@ -351,15 +347,14 @@ __global__ void localAlignBackward(
 		const int qHitLength = qHitLengthArray[hitIdx];
 
 		/* initialize target base */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
-		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
+		char targetBaseArray[MAX_ALIGNMENT_WIDTH];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
 			const int tBaseIdx = tIdx + qHitLength - allowableGap + t;
 			if(tBaseIdx >= tLength) {
-				pTargetBaseArray[t] = BAD_AREA_CHAR;
+				targetBaseArray[t] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 		}
 
@@ -384,7 +379,7 @@ __global__ void localAlignBackward(
 				pTempNode_horizontal += hitNum;
 				pTempNode_matchNum   += hitNum;
 				calcutlateCell(
-						pTargetBaseArray[shrdTargetIdx++],
+						targetBaseArray[shrdTargetIdx++],
 						queryBase,
 						*(pTempNode_score    + hitNum),//
 						*(pTempNode_vertical + hitNum),// lower
@@ -406,9 +401,9 @@ __global__ void localAlignBackward(
 			}
 			const int tBaseIdx = tIdx + qHitLength + allowableGap + q + 1;
 			if(tBaseIdx >= tLength) {
-				pTargetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
+				targetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 			++shrdTargetIdx;
 			if(shrdTargetIdx == alignmentWidth) { shrdTargetIdx = 0; }
@@ -462,15 +457,14 @@ __global__ void localAlignForward(
 		const int qStartIdx = qGateway[qID - q_begin];
 
 		/* initialize target base on resister */
-		__shared__ char targetBaseArray[blockDim_x][MAX_ALIGNMENT_WIDTH];
-		char* pTargetBaseArray = targetBaseArray[threadIdx.x];
+		char targetBaseArray[MAX_ALIGNMENT_WIDTH];
 		const int alignmentWidth = 1 + 2 * allowableGap;
 		for(int t = 0; t < alignmentWidth; ++t) {
 			const int tBaseIdx = tIdx + allowableGap - t - 1;
 			if(tBaseIdx < 0) {
-				pTargetBaseArray[t] = BAD_AREA_CHAR;
+				targetBaseArray[t] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[t] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 		}
 
@@ -493,7 +487,7 @@ __global__ void localAlignForward(
 				pTempNode_horizontal += hitNum;
 				pTempNode_matchNum   += hitNum;
 				calcutlateCell(
-						pTargetBaseArray[shrdTargetIdx++],
+						targetBaseArray[shrdTargetIdx++],
 						queryBase,
 						*(pTempNode_score    + hitNum),//
 						*(pTempNode_vertical + hitNum),// upper
@@ -515,9 +509,9 @@ __global__ void localAlignForward(
 			}
 			const int tBaseIdx = tIdx - allowableGap - q - 2;
 			if(tBaseIdx < 0) {
-				pTargetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
+				targetBaseArray[shrdTargetIdx] = BAD_AREA_CHAR;
 			} else {
-				pTargetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
+				targetBaseArray[shrdTargetIdx] = tBaseArray[tStartIdx + tBaseIdx];
 			}
 			++shrdTargetIdx;
 			if(shrdTargetIdx == alignmentWidth) { shrdTargetIdx = 0; }

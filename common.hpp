@@ -29,7 +29,7 @@ const int MAX_L_MER_LENGTH  = 31;
 const int MAX_ALLOWABLE_GAP = 16;
 
 /* allignment size setting */
-const int MAX_ALIGNMENT_WIDTH = 33;    // == 2 * (MAX_ALLIGNMENT_GAP) + 1
+const int MAX_ALIGNMENT_WIDTH = 2 * MAX_ALLOWABLE_GAP + 1;
 const int MARGIN = 1;
 
 /* allignment point setting */
