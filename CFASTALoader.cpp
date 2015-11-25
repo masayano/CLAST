@@ -94,22 +94,15 @@ void removeSpace(std::string& str) {
 }
 
 void replaceSmallToBig(std::string& str) {
-	std::string::size_type pos = 0;
-	while(pos = str.find("a", pos), pos != std::string::npos) {
-		str.replace(pos, 1, "A");
-	}
-	pos = 0;
-	while(pos = str.find("c", pos), pos != std::string::npos) {
-		str.replace(pos, 1, "C");
-	}
-	pos = 0;
-	while(pos = str.find("g", pos), pos != std::string::npos) {
-		str.replace(pos, 1, "G");
-	}
-	pos = 0;
-	while(pos = str.find("t", pos), pos != std::string::npos) {
-		str.replace(pos, 1, "T");
-	}
+    const char* end = &(str[0]) + str.size();
+    for(char* temp = &(str[0]); temp < end; ++temp) {
+        if(*temp > 'Z') {
+            *temp -= 32;
+        }
+        if(*temp < 'A' || *temp > 'Z') {
+            *temp = 'N';
+        }
+    }
 }
 
 /******************************* CFASTALoader::CFASTAFileLoader function ********************************/

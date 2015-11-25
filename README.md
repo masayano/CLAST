@@ -77,4 +77,7 @@ GNU GPL
     Edit "README.md".
 
 0.1.4 Nov.20, 2015:  
-    Refactored "krnlAlignment.cu" and "common.hpp". 
+    Refactored "krnlAlignment.cu" and "common.hpp".
+
+0.1.5 Nov.24, 2015:  
+    Refactored "CFASTALoader.cpp". 
