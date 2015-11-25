@@ -94,7 +94,7 @@ void removeSpace(std::string& str) {
 }
 
 void replaceSmallToBig(std::string& str) {
-    const char* end = &(str[0]) + str.size();
+    const char* end = (&(str[0])) + str.size();
     for(char* temp = &(str[0]); temp < end; ++temp) {
         if(*temp > 'Z') {
             *temp -= 32;
