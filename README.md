@@ -2,10 +2,9 @@
 
 CUDA-implemented large-scale alignment search tool.
 
-## Minimal Port Status
+## Build Status
 
-This branch adds a modern Linux build path without removing the historical
-`Makefile`.
+This branch provides a modern Linux build path based on `CMake`.
 
 What is verified in this branch:
 
@@ -74,12 +73,6 @@ cmake --build build -j 4
 ```
 
 Override `CLAST_CUDA_ARCHITECTURES` as needed for your GPU generation.
-
-## Legacy Build
-
-The original NVIDIA-sample-style `Makefile` is kept for reference. It still
-assumes older CUDA layouts and architecture flags, so the CMake path above is
-the recommended starting point for modern Linux work.
 
 ## Usage
 
