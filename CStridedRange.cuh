@@ -15,11 +15,11 @@ template <class Iterator> class CStridedRange {
 public:
 	typedef typename thrust::iterator_difference<Iterator>::type difference_type;
 
-	struct StrideFunctor : public thrust::unary_function<difference_type, difference_type> {
+	struct StrideFunctor {
 		int stride;
 
 		StrideFunctor(int stride) : stride(stride) {}
-		__device__ difference_type operator()(const difference_type& i) const { return stride * i; }
+		__host__ __device__ difference_type operator()(const difference_type& i) const { return stride * i; }
     };
 
 	typedef class thrust::counting_iterator<difference_type>						CountingIterator;

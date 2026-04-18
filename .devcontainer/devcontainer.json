@@ -1,0 +1,21 @@
+{
+  "name": "CLAST CUDA Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "cmake.configureOnOpen": false
+      },
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools"
+      ]
+    }
+  },
+  "remoteUser": "root",
+  "runArgs": [
+    "--gpus=all"
+  ]
+}
