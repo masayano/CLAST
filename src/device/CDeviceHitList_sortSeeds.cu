@@ -1,4 +1,5 @@
 #include "device/CDeviceHitList_sortSeeds.cuh"
+#include "device/CDeviceHitList_seed_host_api.cuh"
 
 #include "util/common.hpp"
 
@@ -9,41 +10,6 @@
 #ifdef MODE_TEST
 	#include "test_support/CTest.cuh"
 #endif
-
-/********************************** private *************************************/
-
-#include <thrust/iterator/permutation_iterator.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/sort.h>
-void measureDistanceSorting(
-		thrust::device_vector<int>& seed_targetIDArray,
-		thrust::device_vector<int>& seed_targetIndexArray,
-		thrust::device_vector<int>& seed_queryIDArray,
-		thrust::device_vector<int>& seed_queryIndexArray) {
-	using namespace thrust;
-
-	thrust::sort(
-			make_zip_iterator(
-					make_tuple(
-							seed_targetIDArray   .begin(),
-							seed_targetIndexArray.begin(),
-							seed_queryIDArray    .begin(),
-							seed_queryIndexArray .begin()
-					)
-			),
-			make_zip_iterator(
-					make_tuple(
-							seed_targetIDArray   .end(),
-							seed_targetIndexArray.end(),
-							seed_queryIDArray    .end(),
-							seed_queryIndexArray .end()
-					)
-			),
-			measure_distance()
-	);
-}
-
-/********************************** public ************************************/
 
 void sortSeeds(
 		thrust::device_vector<int>& seed_targetIDArray,

@@ -26,6 +26,7 @@ set(CLAST_SOURCES
   src/device/CDeviceHitList_deleteDuplicateSeeds.cu
   src/device/CDeviceHitList_deleteIsolateSeeds.cu
   src/device/CDeviceHitList_deleteSeedsOnSequenceBoundary.cu
+  src/device/CDeviceHitList_seed_host_api.cu
   src/device/CDeviceHitList_sortSeeds.cu
   src/device/CDeviceSeqList.cu
   src/device/CDeviceSeqList_query.cu
@@ -63,6 +64,37 @@ set_target_properties(clast PROPERTIES
 )
 
 if(BUILD_TESTING)
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.14.0
+  )
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+
+  add_executable(clast_unit_tests
+    tests/unit/device_hitlist_host_api_test.cpp
+    src/device/CDeviceHitList_seed_host_api.cu
+  )
+  set_source_files_properties(tests/unit/device_hitlist_host_api_test.cpp
+    PROPERTIES LANGUAGE CUDA)
+  target_include_directories(clast_unit_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CUDAToolkit_INCLUDE_DIRS}
+  )
+  target_link_libraries(clast_unit_tests PRIVATE
+    GTest::gtest_main
+    CUDA::cudart
+  )
+  set_target_properties(clast_unit_tests PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+  )
+  include(GoogleTest)
+  gtest_discover_tests(clast_unit_tests)
+
   add_test(
     NAME clast_build_artifacts
     COMMAND /usr/bin/env bash

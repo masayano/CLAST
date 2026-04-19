@@ -1,4 +1,5 @@
 #include "device/CDeviceHitList_deleteIsolateSeeds.cuh"
+#include "device/CDeviceHitList_seed_host_api.cuh"
 
 #include "util/common.hpp"
 
@@ -10,74 +11,7 @@
 	#include "test_support/CTest.cuh"
 #endif
 
-/************************************** private ******************************************/
-
 #include <thrust/host_vector.h>
-#include <thrust/iterator/constant_iterator.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/remove.h>
-
-void deleteSeedHasNotNearPair(
-		const int allowableWidth,
-		const int allowableGap,
-		thrust::host_vector<int>& seed_targetIDArray,
-		thrust::host_vector<int>& seed_targetIndexArray,
-		thrust::host_vector<int>& seed_queryIDArray,
-		thrust::host_vector<int>& seed_queryIndexArray) {
-	using namespace thrust;
-
-	if(seed_targetIDArray.size() > 1) {
-		/* do remove */
-		const int newSize = remove_if(
-				make_zip_iterator(
-						make_tuple(
-								seed_targetIDArray   .begin() + 1,
-								seed_targetIndexArray.begin() + 1,
-								seed_queryIDArray    .begin() + 1,
-								seed_queryIndexArray .begin() + 1
-						)
-				),
-				make_zip_iterator(
-						make_tuple(
-								seed_targetIDArray   .end(),
-								seed_targetIndexArray.end(),
-								seed_queryIDArray    .end(),
-								seed_queryIndexArray .end()
-						)
-				),
-				make_zip_iterator(
-						make_tuple(
-								seed_targetIDArray   .begin() + 1,
-								seed_targetIndexArray.begin() + 1,
-								seed_queryIDArray    .begin() + 1,
-								seed_queryIndexArray .begin() + 1,
-								seed_targetIDArray   .begin(),
-								seed_targetIndexArray.begin(),
-								seed_queryIDArray    .begin(),
-								seed_queryIndexArray .begin(),
-								make_constant_iterator(allowableWidth),
-								make_constant_iterator(allowableGap)
-						)
-				),
-				hasNotNearPair()
-		) - make_zip_iterator(
-				make_tuple(
-						seed_targetIDArray   .begin(),
-						seed_targetIndexArray.begin(),
-						seed_queryIDArray    .begin(),
-						seed_queryIndexArray .begin()
-				)
-		);
-
-		/* resize */
-		seed_targetIDArray   .resize(newSize);
-		seed_targetIndexArray.resize(newSize);
-		seed_queryIDArray    .resize(newSize);
-		seed_queryIndexArray .resize(newSize);
-	}
-}
-
-/*************************************** public *****************************************/
 
 #include <thrust/functional.h>
 
