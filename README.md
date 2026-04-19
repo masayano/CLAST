@@ -18,6 +18,19 @@ What is still required for runtime execution:
 - an NVIDIA driver visible to the runtime environment
 - GPU access for Docker or a native Linux/WSL CUDA setup
 
+## Repository Layout
+
+Current source layout in this branch:
+
+- `src/cli/`: CLI entrypoint and command-line parsing
+- `src/host/`: host-side orchestration and FASTA loading
+- `src/device/`: CUDA device-side data structures and kernels support
+- `src/kernel/`: CUDA kernel translation units
+- `src/util/`: shared utilities and headers
+- `src/test_support/`: test-only support code
+- `tools/preprocess_db/`: database preprocessing helper source
+- `tools/divide_query/`: query-splitting helper source
+
 ## Modern Linux Build
 
 ### Option 1: Dev Container
@@ -104,8 +117,10 @@ Check `PARAMETER_GUIDE` and run `clast` with at least:
 ## FOR LARGE REFERENCE SEQUENCES
 
 If your database contains large (refer "-tRAM" and "-tVRAM" option) sequences,  
-you need to preprocess your database by "preprocessDB" before execute CLAST.  
-You can learn how to use it by exeute it without any option.
+you may need the preprocessing helper under
+`tools/preprocess_db/preprocessDB.cpp` before executing CLAST.
+You can learn how to use that helper by building it and running it without any
+option.
 
 
 ## LICENSE

@@ -18,41 +18,44 @@ find_package(Boost REQUIRED)
 include(CTest)
 
 set(CLAST_SOURCES
-  CDeviceHashTable.cu
-  CDeviceHitList.cu
-  CDeviceHitList_alignmentHits.cu
-  CDeviceHitList_createRawSeedList.cu
-  CDeviceHitList_deleteBadHits.cu
-  CDeviceHitList_deleteDuplicateSeeds.cu
-  CDeviceHitList_deleteIsolateSeeds.cu
-  CDeviceHitList_deleteSeedsOnSequenceBoundary.cu
-  CDeviceHitList_sortSeeds.cu
-  CDeviceSeqList.cu
-  CDeviceSeqList_query.cu
-  CDeviceSeqList_target.cu
-  CFASTALoader.cpp
-  CHostFASTA.cpp
-  CHostMapper.cu
-  CHostResultHolder.cu
-  CHostSchedular.cu
-  CHostSeqList.cu
-  CHostSeqList_query.cu
-  CHostSeqList_target.cu
-  CHostSetting.cu
-  CTest.cu
-  krnlAlignment.cu
-  krnlBinarySearch.cu
-  krnlCalculateEvalue.cu
-  krnlWriteSeedList.cu
-  listenCommandLine.cpp
-  main.cu
-  utilAddSequence.cu
-  utilResultSorting.cu
-  utilReverseSeq.cpp
+  src/device/CDeviceHashTable.cu
+  src/device/CDeviceHitList.cu
+  src/device/CDeviceHitList_alignmentHits.cu
+  src/device/CDeviceHitList_createRawSeedList.cu
+  src/device/CDeviceHitList_deleteBadHits.cu
+  src/device/CDeviceHitList_deleteDuplicateSeeds.cu
+  src/device/CDeviceHitList_deleteIsolateSeeds.cu
+  src/device/CDeviceHitList_deleteSeedsOnSequenceBoundary.cu
+  src/device/CDeviceHitList_sortSeeds.cu
+  src/device/CDeviceSeqList.cu
+  src/device/CDeviceSeqList_query.cu
+  src/device/CDeviceSeqList_target.cu
+  src/host/CFASTALoader.cpp
+  src/host/CHostFASTA.cpp
+  src/host/CHostMapper.cu
+  src/host/CHostResultHolder.cu
+  src/host/CHostSchedular.cu
+  src/host/CHostSeqList.cu
+  src/host/CHostSeqList_query.cu
+  src/host/CHostSeqList_target.cu
+  src/host/CHostSetting.cu
+  src/test_support/CTest.cu
+  src/kernel/krnlAlignment.cu
+  src/kernel/krnlBinarySearch.cu
+  src/kernel/krnlCalculateEvalue.cu
+  src/kernel/krnlWriteSeedList.cu
+  src/cli/listenCommandLine.cpp
+  src/cli/main.cu
+  src/util/utilAddSequence.cu
+  src/util/utilResultSorting.cu
+  src/util/utilReverseSeq.cpp
 )
 
 add_executable(clast ${CLAST_SOURCES})
-target_include_directories(clast PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(clast PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 target_link_libraries(clast PRIVATE CUDA::cudart)
 set_target_properties(clast PROPERTIES
   CUDA_SEPARABLE_COMPILATION ON
