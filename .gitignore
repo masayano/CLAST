@@ -1,4 +1,5 @@
 .cursor/
+.claude/
 .worktrees/
 build/
 docs/
