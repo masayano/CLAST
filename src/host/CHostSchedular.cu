@@ -1,13 +1,14 @@
 #include "host/CHostSchedular.cuh"
 
 #include "util/common.hpp"
+#include "util/time_attack.hpp"
 
 #include "device/CDeviceHashTable.cuh"
 #include "device/CDeviceHitList.cuh"
 #include "device/CDeviceSeqList_query.cuh"
 
 #include <iostream>
-#include <sstream>
+#include <memory>
 
 void moveQueryWindow(
 		const CHostSeqList_query& queryList,
@@ -41,16 +42,10 @@ CHostSchedular::CHostSchedular(
 		: setting(s), targetList(t), queryList(q) {}
 
 void CHostSchedular::search(CHostResultHolder& holder) {
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		std::cout << std::endl << "...Searching." << std::endl;
-	#endif /* TIME_ATTACK */
+	time_attack::print_searching_banner();
 
 	/* scheduling(target) */
-	#ifdef TIME_ATTACK
-		int searchTimes_target = 0;
-	#endif
+	[[maybe_unused]] int searchTimes_target = 0;
 	const int tEndID = targetList.getGatewaySize() - 1;
 	for(int t_begin = 0, t_end = 1; t_begin < tEndID; t_begin = t_end++) {
 		moveTargetWindow(
@@ -59,27 +54,18 @@ void CHostSchedular::search(CHostResultHolder& holder) {
 				tEndID,
 				t_begin,
 				t_end);
-		#ifdef TIME_ATTACK
-			cudaEventCreate( &start );
-			cudaEventCreate( &stop  );
-			cudaEventRecord( start, 0 );
-			std::cout
-					<< " Creating hash table [" << searchTimes_target++ << "]"
-					<< " (t_begin/t_end -> " << t_begin << "/" << t_end << ") ";
-		#endif /* TIME_ATTACK */
-		CDeviceHashTable  hashTable(setting, targetList, t_begin, t_end);
-		#ifdef TIME_ATTACK
-			std::cout << "...finished." << std::endl;
-			cudaEventRecord( stop, 0 );
-			cudaEventSynchronize( stop );
-			cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-			std::cout << " (costs " << elapsed_time_ms << "ms)" << std::endl;
-		#endif /* TIME_ATTACK */
+		std::unique_ptr<CDeviceHashTable> pHash;
+		time_attack::runLabeledPrefix(
+				[&, t_begin, t_end](std::ostream& os) {
+					os << " Creating hash table [" << searchTimes_target++ << "]"
+					   << " (t_begin/t_end -> " << t_begin << "/" << t_end << ") ";
+				},
+				"...finished.\n",
+				[&] { pHash = std::make_unique<CDeviceHashTable>(setting, targetList, t_begin, t_end); });
+		CDeviceHashTable& hashTable = *pHash;
 
 		/* scheduling(query) */
-		#ifdef TIME_ATTACK
-			int searchTimes_query = 0;
-		#endif
+		[[maybe_unused]] int searchTimes_query = 0;
 		// this magic number 2 = number of query strand types ('+', '-')
 		const int qEndID = (queryList.getGatewaySize()-1)/2;
 		for(int q_begin = 0, q_end = 1; q_begin < qEndID; q_begin = q_end++) {
@@ -89,38 +75,27 @@ void CHostSchedular::search(CHostResultHolder& holder) {
 					qEndID,
 					q_begin,
 					q_end);
-			#ifdef TIME_ATTACK
-				cudaEventCreate( &start );
-				cudaEventCreate( &stop  );
-				cudaEventRecord( start, 0 );
-				std::cout << std::endl << "  ...Transferring queries from host to device";
-			#endif /* TIME_ATTACK */
-			CDeviceSeqList_query deviceQueryList(setting, &queryList, q_begin, q_end);
-			#ifdef TIME_ATTACK
-				std::cout << "..............finished.";
-				cudaEventRecord( stop, 0 );
-				cudaEventSynchronize( stop );
-				cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-				std::cout << " (costs " << elapsed_time_ms << "ms)" << std::endl;
-			#endif /* TIME_ATTACK */
+			std::unique_ptr<CDeviceSeqList_query> pQuery;
+			time_attack::runLabeledPrefix(
+					[](std::ostream& os) { os << std::endl << "  ...Transferring queries from host to device"; },
+					"..............finished.",
+					[&] {
+						pQuery = std::make_unique<CDeviceSeqList_query>(setting, &queryList, q_begin, q_end);
+					});
+			CDeviceSeqList_query& deviceQueryList = *pQuery;
 
-			#ifdef TIME_ATTACK
-				cudaEventCreate( &start );
-				cudaEventCreate( &stop  );
-				cudaEventRecord( start, 0 );
-				std::cout
-						<< " Creating hit list   [" << searchTimes_query++ << "]"
-						<< " (q_begin/q_end -> " << q_begin << "/" << q_end << ") ";
-			#endif /* TIME_ATTACK */
-			// this magic number 2 = number of query strand types ('+', '-')
-			CDeviceHitList hitList(setting, hashTable, deviceQueryList, t_begin, q_begin*2);
-			#ifdef TIME_ATTACK
-				std::cout << "...finished." << std::endl;
-				cudaEventRecord( stop, 0 );
-				cudaEventSynchronize( stop );
-				cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-				std::cout << " (costs " << elapsed_time_ms << "ms)" << std::endl;
-			#endif /* TIME_ATTACK */
+			std::unique_ptr<CDeviceHitList> pHit;
+			time_attack::runLabeledPrefix(
+					[&, q_begin, q_end](std::ostream& os) {
+						os << " Creating hit list   [" << searchTimes_query++ << "]"
+						   << " (q_begin/q_end -> " << q_begin << "/" << q_end << ") ";
+					},
+					"...finished.\n",
+					[&] {
+						// this magic number 2 = number of query strand types ('+', '-')
+						pHit = std::make_unique<CDeviceHitList>(setting, hashTable, deviceQueryList, t_begin, q_begin*2);
+					});
+			CDeviceHitList& hitList = *pHit;
 
 			hitList.getResult(holder); // this subroutine calls holder::addResult().
 			holder.addLabel   (targetList);

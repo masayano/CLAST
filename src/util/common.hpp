@@ -3,7 +3,8 @@
 
 /* If you want to run in test or time-attack mode,
  * only you have to do is to comment-in this definition.
- *
+ * Alternatively, configure CMake with -DCLAST_ENABLE_TIME_ATTACK=ON
+ * to define TIME_ATTACK for the clast target (no edit here).
  */
 //#define MODE_TEST
 //#define TIME_ATTACK

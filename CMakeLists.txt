@@ -7,15 +7,17 @@ set(CMAKE_CUDA_ARCHITECTURES "${CLAST_CUDA_ARCHITECTURES}" CACHE STRING
 
 project(CLAST LANGUAGES CXX CUDA)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_EXTENSIONS OFF)
 
 find_package(CUDAToolkit REQUIRED)
 find_package(Boost REQUIRED)
 include(CTest)
+
+option(CLAST_ENABLE_TIME_ATTACK "Compile clast with TIME_ATTACK (verbose GPU timing output)" OFF)
 
 set(CLAST_SOURCES
   src/device/CDeviceHashTable.cu
@@ -57,6 +59,9 @@ target_include_directories(clast PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+if(CLAST_ENABLE_TIME_ATTACK)
+  target_compile_definitions(clast PRIVATE TIME_ATTACK)
+endif()
 target_link_libraries(clast PRIVATE CUDA::cudart)
 set_target_properties(clast PROPERTIES
   CUDA_SEPARABLE_COMPILATION ON

@@ -1,11 +1,15 @@
 #include "device/CDeviceHitList_deleteBadHits.cuh"
 
+#include "util/common.hpp"
+#include "util/time_attack.hpp"
+
+#include <iostream>
 #include <thrust/host_vector.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/remove.h>
 
-void deleteHits_lowEValue(
+void removeLowEValueHits(
 		const double cutOffEValue,
 		thrust::device_vector<int>& targetIDArray,
 		thrust::device_vector<int>& targetIndexArray,
@@ -16,14 +20,6 @@ void deleteHits_lowEValue(
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray,
 		thrust::device_vector<double>& evalueArray) {
-        #ifdef TIME_ATTACK
-                float elapsed_time_ms=0.0f;
-                cudaEvent_t start, stop;
-                cudaEventCreate( &start );
-                cudaEventCreate( &stop  );
-                cudaEventRecord( start, 0 );
-                std::cout << "  ...deleting hits which has low e-value";
-        #endif /* TIME_ATTACK */
 	using namespace thrust;
 	host_vector<int>    h_targetIDArray    = targetIDArray;
 	host_vector<int>    h_targetIndexArray = targetIndexArray;
@@ -101,19 +97,40 @@ void deleteHits_lowEValue(
 	matchNumArray   .resize(new_size);
 	scoreArray      .resize(new_size);
 	evalueArray     .resize(new_size);
-        #ifdef TIME_ATTACK
-                std::cout << "...................finished.";
-                cudaEventRecord( stop, 0 );
-                cudaEventSynchronize( stop );
-                cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-                std::cout
-                                << " (costs " << elapsed_time_ms << "ms) "
-                                << seed_targetIDArray.size() << " un-exact hits found."
-                                << std::endl;
-        #endif /* TIME_ATTACK */
 }
 
-void deleteHits_tooShort(
+void deleteHits_lowEValue(
+		const double cutOffEValue,
+		thrust::device_vector<int>& targetIDArray,
+		thrust::device_vector<int>& targetIndexArray,
+		thrust::device_vector<int>& queryIDArray,
+		thrust::device_vector<int>& queryIndexArray,
+		thrust::device_vector<int>& tHitLengthArray,
+		thrust::device_vector<int>& qHitLengthArray,
+		thrust::device_vector<int>& matchNumArray,
+		thrust::device_vector<int>& scoreArray,
+		thrust::device_vector<double>& evalueArray) {
+	time_attack::runLabeledWithSuffix(
+			"  ...deleting hits which has low e-value", "...................finished.",
+			[&] {
+				removeLowEValueHits(
+						cutOffEValue,
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << targetIDArray.size() << " un-exact hits found." << std::endl;
+			});
+}
+
+void removeTooShortHits(
 		const CHostSetting& s,
 		thrust::device_vector<int>& targetIDArray,
 		thrust::device_vector<int>& targetIndexArray,
@@ -124,14 +141,6 @@ void deleteHits_tooShort(
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray,
 		thrust::device_vector<double>& evalueArray) {
-        #ifdef TIME_ATTACK
-                float elapsed_time_ms=0.0f;
-                cudaEvent_t start, stop;
-                cudaEventCreate( &start );
-                cudaEventCreate( &stop  );
-                cudaEventRecord( start, 0 );
-                std::cout << "  ...deleting too short hits";
-        #endif /* TIME_ATTACK */
 	using namespace thrust;
 	host_vector<int>    h_targetIDArray    = targetIDArray;
 	host_vector<int>    h_targetIndexArray = targetIndexArray;
@@ -209,14 +218,35 @@ void deleteHits_tooShort(
 	matchNumArray   .resize(new_size);
 	scoreArray      .resize(new_size);
 	evalueArray     .resize(new_size);
-        #ifdef TIME_ATTACK
-                std::cout << "...............................finished.";
-                cudaEventRecord( stop, 0 );
-                cudaEventSynchronize( stop );
-                cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-                std::cout
-                                << " (costs " << elapsed_time_ms << "ms) "
-                                << seed_targetIDArray.size() << " un-exact hits found."
-                                << std::endl;
-        #endif /* TIME_ATTACK */
+}
+
+void deleteHits_tooShort(
+		const CHostSetting& s,
+		thrust::device_vector<int>& targetIDArray,
+		thrust::device_vector<int>& targetIndexArray,
+		thrust::device_vector<int>& queryIDArray,
+		thrust::device_vector<int>& queryIndexArray,
+		thrust::device_vector<int>& tHitLengthArray,
+		thrust::device_vector<int>& qHitLengthArray,
+		thrust::device_vector<int>& matchNumArray,
+		thrust::device_vector<int>& scoreArray,
+		thrust::device_vector<double>& evalueArray) {
+	time_attack::runLabeledWithSuffix(
+			"  ...deleting too short hits", "...............................finished.",
+			[&] {
+				removeTooShortHits(
+						s,
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << targetIDArray.size() << " un-exact hits found." << std::endl;
+			});
 }

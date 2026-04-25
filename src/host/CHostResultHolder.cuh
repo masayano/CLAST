@@ -41,6 +41,10 @@ public:
 	void printResult(
 			const int numberOfOutput,
 			const std::string& outputFile) const;
+private:
+	void printResultToFile(
+			int numberOfOutput,
+			const std::string& outputFile) const;
 };
 
 #endif

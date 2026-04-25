@@ -40,29 +40,41 @@ container based on `nvidia/cuda:12.4.1-devel-ubuntu22.04`.
 
 ### Option 2: Docker Scripts
 
-Build the development image:
+Build the development image (required once, from the repository root):
 
 ```bash
 docker build -t clast-cuda-dev .devcontainer
 ```
 
-Compile CLAST:
+Compile CLAST (Ninja, artifacts under `build/` on the host; default `BUILD_TESTING` is
+`Off` in this script so `cmake` does not need to fetch GoogleTest; set
+`CLAST_CMAKE_BUILD_TESTING=On` if you also want the unit test binary in one step):
 
 ```bash
 ./scripts/docker-build.sh
 ```
 
-Run the current minimal test suite:
+Run the current minimal test suite (uses `build/`; first run needs network to
+fetch GoogleTest for configuration):
 
 ```bash
 ./scripts/docker-test.sh
 ```
 
-Run the tiny smoke test:
+Run the tiny smoke test (requires a GPU; uses `CLAST_DOCKER_GPU_FLAG` if you
+need to change `docker run` GPU options):
 
 ```bash
 ./scripts/docker-smoke.sh
 ```
+
+On **Windows (PowerShell)**, the `.sh` files are not run by bash by default, so
+use the wrappers: `.\scripts\docker-build.ps1`, `.\scripts\docker-test.ps1`, or
+`.\scripts\docker-smoke.ps1`. The wrapper **prefers Git for Windows’ `bash`**
+over WSL (Docker works with either; WSL can report `Wsl/Service/E_UNEXPECTED`
+while Git bash is fine). To try WSL first instead, set
+`$env:CLAST_POWERSHELL_BASH_ORDER = "wsl-first"`, or run
+`"C:\Program Files\Git\bin\bash.exe" ./scripts/docker-build.sh` from the repo root.
 
 If the runtime environment has no GPU driver, the smoke script will fail with a
 CUDA driver/runtime mismatch. Compilation should still succeed.

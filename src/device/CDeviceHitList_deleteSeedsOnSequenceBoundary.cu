@@ -2,10 +2,8 @@
 #include "device/CDeviceHitList_seed_host_api.cuh"
 
 #include "util/common.hpp"
-
-#ifdef TIME_ATTACK
-	#include <iostream>
-#endif
+#include "util/time_attack.hpp"
+#include <iostream>
 
 #ifdef MODE_TEST
 	#include "test_support/CTest.cuh"
@@ -13,7 +11,7 @@
 
 #include <thrust/host_vector.h>
 
-void deleteSeedsOnSequenceBoundary(
+void removeSeedsOnSequenceBoundary(
 		const CHostSetting& s,
 		const CDeviceHashTable& h,
 		const CDeviceSeqList_query& q,
@@ -23,14 +21,6 @@ void deleteSeedsOnSequenceBoundary(
 		thrust::device_vector<int>& seed_targetIndexArray,
 		thrust::device_vector<int>& seed_queryIDArray,
 		thrust::device_vector<int>& seed_queryIndexArray) {
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << "  ...deleting hits on sequence boundary";
-	#endif /* TIME_ATTACK */
 	using namespace thrust;
 	host_vector<int> h_tIDArray  = seed_targetIDArray;
 	host_vector<int> h_tIdxArray = seed_targetIndexArray;
@@ -52,17 +42,17 @@ void deleteSeedsOnSequenceBoundary(
 			h_tIdxArray,
 			h_qIDArray,
 			h_qIdxArray);
-	if(!s.getFlgLocal()) {
+	if (!s.getFlgLocal()) {
 		onCorner(
-			s.getAllowableGap(),
-			t_begin,
-			q_begin,
-			h.getTarget().getLengthArray(),
-			q.getLengthArray(),
-			h_tIDArray,
-			h_tIdxArray,
-			h_qIDArray,
-			h_qIdxArray);
+				s.getAllowableGap(),
+				t_begin,
+				q_begin,
+				h.getTarget().getLengthArray(),
+				q.getLengthArray(),
+				h_tIDArray,
+				h_tIdxArray,
+				h_qIDArray,
+				h_qIdxArray);
 	}
 	seed_targetIDArray    = h_tIDArray;
 	seed_targetIndexArray = h_tIdxArray;
@@ -73,16 +63,35 @@ void deleteSeedsOnSequenceBoundary(
 	seed_targetIndexArray.resize(newSize);
 	seed_queryIDArray    .resize(newSize);
 	seed_queryIndexArray .resize(newSize);
-	#ifdef TIME_ATTACK
-		std::cout << "....................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout
-				<< " (costs " << elapsed_time_ms << "ms) "
-				<< seed_targetIDArray.size() << " hits found."
-				<< std::endl;
-	#endif /* TIME_ATTACK */
+}
+
+void deleteSeedsOnSequenceBoundary(
+		const CHostSetting& s,
+		const CDeviceHashTable& h,
+		const CDeviceSeqList_query& q,
+		const int t_begin,
+		const int q_begin,
+		thrust::device_vector<int>& seed_targetIDArray,
+		thrust::device_vector<int>& seed_targetIndexArray,
+		thrust::device_vector<int>& seed_queryIDArray,
+		thrust::device_vector<int>& seed_queryIndexArray) {
+	time_attack::runLabeledWithSuffix(
+			"  ...deleting hits on sequence boundary", "....................finished.",
+			[&] {
+				removeSeedsOnSequenceBoundary(
+						s,
+						h,
+						q,
+						t_begin,
+						q_begin,
+						seed_targetIDArray,
+						seed_targetIndexArray,
+						seed_queryIDArray,
+						seed_queryIndexArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << seed_targetIDArray.size() << " hits found." << std::endl;
+			});
 	#ifdef MODE_TEST
 		CTest::printQueryToTarget(
 				seed_targetIDArray,

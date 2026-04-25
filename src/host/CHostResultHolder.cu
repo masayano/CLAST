@@ -1,6 +1,7 @@
 #include "host/CHostResultHolder.cuh"
 
 #include "util/utilResultSorting.cuh"
+#include "util/time_attack.hpp"
 
 #include <thrust/host_vector.h>
 #include <cstdlib>
@@ -90,32 +91,21 @@ void CHostResultHolder::fixResult  (void) {
 	// See also: addLabel() and addStartIdx()
 	sequence(d_targetIDArray.begin(), d_targetIDArray.end());
 
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << std::endl << "  ...sorting results";
-	#endif /* TIME_ATTACK */
-	resultSorting(
-			d_targetIDArray,
-			d_targetIndexArray,
-			d_queryIDArray,
-			d_queryIndexArray,
-			d_tHitLengthArray,
-			d_qHitLengthArray,
-			d_matchNumArray,
-			d_scoreArray,
-			d_evalueArray);
-	#ifdef TIME_ATTACK
-		std::cout << ".......................................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout
-				<< " (costs " << elapsed_time_ms << "ms)";
-	#endif /* TIME_ATTACK */
+	time_attack::runLabeled(
+			"\n  ...sorting results", ".......................................finished.",
+			[&] {
+				resultSorting(
+						d_targetIDArray,
+						d_targetIndexArray,
+						d_queryIDArray,
+						d_queryIndexArray,
+						d_tHitLengthArray,
+						d_qHitLengthArray,
+						d_matchNumArray,
+						d_scoreArray,
+						d_evalueArray);
+			},
+			time_attack::NewlineAfterCosts::No);
 
 	targetIDArray    = d_targetIDArray;
 	targetIndexArray = d_targetIndexArray;
@@ -129,17 +119,9 @@ void CHostResultHolder::fixResult  (void) {
 }
 
 /* called at main() after CHostSchedular::search() was called */
-void CHostResultHolder::printResult(
-		const int numberOfOutput,
+void CHostResultHolder::printResultToFile(
+		int numberOfOutput,
 		const std::string& outputFile) const {
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << "  ...print result to disc";
-	#endif /* TIME_ATTACK */
 	std::stringstream filename;
 	filename << outputFile;
 
@@ -233,12 +215,12 @@ void CHostResultHolder::printResult(
 		}
 	}
 	std::cout << " " << printedHitsCounter << " hits has printed." << std::endl;
+}
 
-	#ifdef TIME_ATTACK
-		std::cout << "..................................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout << " (costs " << elapsed_time_ms << "ms)" << std::endl;
-	#endif /* TIME_ATTACK */
+void CHostResultHolder::printResult(
+		const int numberOfOutput,
+		const std::string& outputFile) const {
+	time_attack::runLabeled(
+			"  ...print result to disc", "..................................finished.",
+			[&] { printResultToFile(numberOfOutput, outputFile); });
 }

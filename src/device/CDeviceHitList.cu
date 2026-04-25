@@ -17,6 +17,8 @@
 #include <thrust/transform.h>
 
 #include "util/common.hpp"
+#include "util/time_attack.hpp"
+#include <iostream>
 
 #ifdef MODE_TEST
 #include "test_support/CTest.cuh"
@@ -29,7 +31,7 @@
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/remove.h>
 
-void deleteHits_duplicateResult(
+void removeDuplicateResultHits(
 		thrust::device_vector<int>& targetIDArray,
 		thrust::device_vector<int>& targetIndexArray,
 		thrust::device_vector<int>& queryIDArray,
@@ -39,16 +41,8 @@ void deleteHits_duplicateResult(
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray,
 		thrust::device_vector<double>& evalueArray) {
-        #ifdef TIME_ATTACK
-                float elapsed_time_ms=0.0f;
-                cudaEvent_t start, stop;
-                cudaEventCreate( &start );
-                cudaEventCreate( &stop  );
-                cudaEventRecord( start, 0 );
-                std::cout << "  ...deleting duplicate hits";
-        #endif /* TIME_ATTACK */
 	using namespace thrust;
-	if(targetIDArray.size() > 1) {
+	if (targetIDArray.size() > 1) {
 		/* do remove */
 		const int new_size = remove_if(
 				make_zip_iterator(
@@ -115,19 +109,107 @@ void deleteHits_duplicateResult(
 		scoreArray      .resize(new_size);
 		evalueArray     .resize(new_size);
 	}
-        #ifdef TIME_ATTACK
-                std::cout << "...............................finished.";
-                cudaEventRecord( stop, 0 );
-                cudaEventSynchronize( stop );
-                cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-                std::cout
-                                << " (costs " << elapsed_time_ms << "ms) "
-                                << targetIDArray.size() << " hits found."
-                                << std::endl;
-        #endif /* TIME_ATTACK */
+}
+
+void deleteHits_duplicateResult(
+		thrust::device_vector<int>& targetIDArray,
+		thrust::device_vector<int>& targetIndexArray,
+		thrust::device_vector<int>& queryIDArray,
+		thrust::device_vector<int>& queryIndexArray,
+		thrust::device_vector<int>& tHitLengthArray,
+		thrust::device_vector<int>& qHitLengthArray,
+		thrust::device_vector<int>& matchNumArray,
+		thrust::device_vector<int>& scoreArray,
+		thrust::device_vector<double>& evalueArray) {
+	time_attack::runLabeledWithSuffix(
+			"  ...deleting duplicate hits", "...............................finished.",
+			[&] {
+				removeDuplicateResultHits(
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << targetIDArray.size() << " hits found." << std::endl;
+			});
 }
 
 /********************************* non class functions ***********************************/
+
+void appendUnExactMatchResults(
+		const thrust::device_vector<int>& add_targetIDArray,
+		const thrust::device_vector<int>& add_targetIndexArray,
+		const thrust::device_vector<int>& add_queryIDArray,
+		const thrust::device_vector<int>& add_queryIndexArray,
+		const thrust::device_vector<int>& add_tHitLengthArray,
+		const thrust::device_vector<int>& add_qHitLengthArray,
+		const thrust::device_vector<int>& add_matchNumArray,
+		const thrust::device_vector<int>& add_scoreArray,
+		const thrust::device_vector<double>& add_evalueArray,
+		thrust::device_vector<int>& targetIDArray,
+		thrust::device_vector<int>& targetIndexArray,
+		thrust::device_vector<int>& queryIDArray,
+		thrust::device_vector<int>& queryIndexArray,
+		thrust::device_vector<int>& tHitLengthArray,
+		thrust::device_vector<int>& qHitLengthArray,
+		thrust::device_vector<int>& matchNumArray,
+		thrust::device_vector<int>& scoreArray,
+		thrust::device_vector<double>& evalueArray) {
+	using namespace thrust;
+	const int oldResultSize = targetIDArray.size();
+	const int newResultSize = oldResultSize + add_targetIDArray.size();
+	targetIDArray.resize(newResultSize);
+	targetIndexArray.resize(newResultSize);
+	queryIDArray.resize(newResultSize);
+	queryIndexArray.resize(newResultSize);
+	tHitLengthArray.resize(newResultSize);
+	qHitLengthArray.resize(newResultSize);
+	matchNumArray.resize(newResultSize);
+	scoreArray.resize(newResultSize);
+	evalueArray.resize(newResultSize);
+	copy(
+			add_targetIDArray.begin(),
+			add_targetIDArray.end(),
+			targetIDArray.begin() + oldResultSize);
+	copy(
+			add_targetIndexArray.begin(),
+			add_targetIndexArray.end(),
+			targetIndexArray.begin() + oldResultSize);
+	copy(
+			add_queryIDArray.begin(),
+			add_queryIDArray.end(),
+			queryIDArray.begin() + oldResultSize);
+	copy(
+			add_queryIndexArray.begin(),
+			add_queryIndexArray.end(),
+			queryIndexArray.begin() + oldResultSize);
+	copy(
+			add_tHitLengthArray.begin(),
+			add_tHitLengthArray.end(),
+			tHitLengthArray.begin() + oldResultSize);
+	copy(
+			add_qHitLengthArray.begin(),
+			add_qHitLengthArray.end(),
+			qHitLengthArray.begin() + oldResultSize);
+	copy(
+			add_matchNumArray.begin(),
+			add_matchNumArray.end(),
+			matchNumArray.begin() + oldResultSize);
+	copy(
+			add_scoreArray.begin(),
+			add_scoreArray.end(),
+			scoreArray.begin() + oldResultSize);
+	copy(
+			add_evalueArray.begin(),
+			add_evalueArray.end(),
+			evalueArray.begin() + oldResultSize);
+}
 
 void addResult(
 		const thrust::device_vector<int>& add_targetIDArray,
@@ -148,80 +230,32 @@ void addResult(
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray,
 		thrust::device_vector<double>& evalueArray) {
-        #ifdef TIME_ATTACK
-                float elapsed_time_ms=0.0f;
-                cudaEvent_t start, stop;
-                cudaEventCreate( &start );
-                cudaEventCreate( &stop  );
-                cudaEventRecord( start, 0 );
-                std::cout << "  ...writing un-exact matches";
-        #endif /* TIME_ATTACK */
-	const int oldResultSize = targetIDArray.size();
-	const int newResultSize = oldResultSize + add_targetIDArray.size();
-	targetIDArray   .resize(newResultSize);
-	targetIndexArray.resize(newResultSize);
-	queryIDArray    .resize(newResultSize);
-	queryIndexArray .resize(newResultSize);
-	tHitLengthArray .resize(newResultSize);
-	qHitLengthArray .resize(newResultSize);
-	matchNumArray   .resize(newResultSize);
-	scoreArray      .resize(newResultSize);
-	evalueArray     .resize(newResultSize);
-	copy(
-			add_targetIDArray.begin(),
-			add_targetIDArray.end(),
-			targetIDArray    .begin() + oldResultSize
-	);
-	copy(
-			add_targetIndexArray.begin(),
-			add_targetIndexArray.end(),
-			targetIndexArray    .begin() + oldResultSize
-	);
-	copy(
-			add_queryIDArray.begin(),
-			add_queryIDArray.end(),
-			queryIDArray    .begin() + oldResultSize
-	);
-	copy(
-			add_queryIndexArray.begin(),
-			add_queryIndexArray.end(),
-			queryIndexArray    .begin() + oldResultSize
-	);
-	copy(
-			add_tHitLengthArray.begin(),
-			add_tHitLengthArray.end(),
-			tHitLengthArray    .begin() + oldResultSize
-	);
-	copy(
-			add_qHitLengthArray.begin(),
-			add_qHitLengthArray.end(),
-			qHitLengthArray    .begin() + oldResultSize
-	);
-	copy(
-			add_matchNumArray.begin(),
-			add_matchNumArray.end(),
-			matchNumArray    .begin() + oldResultSize
-	);
-	copy(
-			add_scoreArray.begin(),
-			add_scoreArray.end(),
-			scoreArray    .begin() + oldResultSize
-	);
-	copy(
-			add_evalueArray.begin(),
-			add_evalueArray.end(),
-			evalueArray    .begin() + oldResultSize
-	);
-        #ifdef TIME_ATTACK
-                std::cout << "..............................finished.";
-                cudaEventRecord( stop, 0 );
-                cudaEventSynchronize( stop );
-                cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-                std::cout
-                                << " (costs " << elapsed_time_ms << "ms) "
-                                << add_targetIDArray.size() << " un-exact hits found."
-                                << std::endl;
-        #endif /* TIME_ATTACK */
+	time_attack::runLabeledWithSuffix(
+			"  ...writing un-exact matches", "..............................finished.",
+			[&] {
+				appendUnExactMatchResults(
+						add_targetIDArray,
+						add_targetIndexArray,
+						add_queryIDArray,
+						add_queryIndexArray,
+						add_tHitLengthArray,
+						add_qHitLengthArray,
+						add_matchNumArray,
+						add_scoreArray,
+						add_evalueArray,
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << add_targetIDArray.size() << " un-exact hits found." << std::endl;
+			});
 }
 
 /************************************* class functions **************************************/
@@ -303,37 +337,26 @@ CDeviceHitList::CDeviceHitList(
 	/* prepare calculation of E-value */
 	thrust::device_vector<double> seed_evalueArray(seed_targetIDArray.size());
 
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << "  ...calculating E-value";
-	#endif /* TIME_ATTACK */
-	const int blockDim_x = 256;
-	const int seedAlignmentNum = seed_targetIDArray.size();
-	calculateEvalue<<<(seedAlignmentNum/blockDim_x)+1, blockDim_x>>>(
-			q_begin,
-			seedAlignmentNum,
-			s.getTotalDatabaseSize(),
-			s.getK(),
-			s.getLambda(),
-			raw_pointer_cast( &*q.getLengthArray().begin() ),
-			raw_pointer_cast( &*seed_queryIDArray .begin() ),
-			raw_pointer_cast( &*seed_scoreArray   .begin() ),
-			raw_pointer_cast( &*seed_evalueArray  .begin() )
-	);
-	#ifdef TIME_ATTACK
-		std::cout << "...................................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout
-				<< " (costs " << elapsed_time_ms << "ms) "
-				<< seed_targetIDArray.size() << " hits found."
-				<< std::endl;
-	#endif /* TIME ATTACK */
+	time_attack::runLabeledWithSuffix(
+			"  ...calculating E-value", "...................................finished.",
+			[&] {
+				const int blockDim_x = 256;
+				const int seedAlignmentNum = seed_targetIDArray.size();
+				calculateEvalue<<<(seedAlignmentNum/blockDim_x)+1, blockDim_x>>>(
+						q_begin,
+						seedAlignmentNum,
+						s.getTotalDatabaseSize(),
+						s.getK(),
+						s.getLambda(),
+						raw_pointer_cast( &*q.getLengthArray().begin() ),
+						raw_pointer_cast( &*seed_queryIDArray .begin() ),
+						raw_pointer_cast( &*seed_scoreArray   .begin() ),
+						raw_pointer_cast( &*seed_evalueArray  .begin() )
+				);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << seed_targetIDArray.size() << " hits found." << std::endl;
+			});
 
 	if(s.getCutOff() != -1) {
 		deleteHits_lowEValue(
@@ -383,32 +406,23 @@ CDeviceHitList::CDeviceHitList(
 				evalueArray);
 	}
 
-	#ifdef TIME_ATTACK
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << "  ...sorting results";
-	#endif /* TIME_ATTACK */
-	resultSorting(
-			targetIDArray,
-			targetIndexArray,
-			queryIDArray,
-			queryIndexArray,
-			tHitLengthArray,
-			qHitLengthArray,
-			matchNumArray,
-			scoreArray,
-			evalueArray);
-	#ifdef TIME_ATTACK
-		std::cout << ".......................................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout
-				<< " (costs " << elapsed_time_ms << "ms) "
-				<< targetIDArray.size() << " total hits found."
-				<< std::endl;
-	#endif /* TIME_ATTACK */
+	time_attack::runLabeledWithSuffix(
+			"  ...sorting results", ".......................................finished.",
+			[&] {
+				resultSorting(
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			},
+			[&](std::ostream& os, float /*ms*/) {
+				os << targetIDArray.size() << " total hits found." << std::endl;
+			});
 
 	deleteHits_duplicateResult(
 			targetIDArray,
@@ -423,29 +437,18 @@ CDeviceHitList::CDeviceHitList(
 }
 
 void CDeviceHitList::getResult(CHostResultHolder& holder) {
-	#ifdef TIME_ATTACK
-		float elapsed_time_ms=0.0f;
-		cudaEvent_t start, stop;
-		cudaEventCreate( &start );
-		cudaEventCreate( &stop  );
-		cudaEventRecord( start, 0 );
-		std::cout << "  ...Record result to host";
-	#endif /* TIME_ATTACK */
-	holder.addResult(
-			targetIDArray,
-			targetIndexArray,
-			queryIDArray,
-			queryIndexArray,
-			tHitLengthArray,
-			qHitLengthArray,
-			matchNumArray,
-			scoreArray,
-			evalueArray);
-	#ifdef TIME_ATTACK
-		std::cout << ".................................finished.";
-		cudaEventRecord( stop, 0 );
-		cudaEventSynchronize( stop );
-		cudaEventElapsedTime( &elapsed_time_ms, start, stop );
-		std::cout << " (costs " << elapsed_time_ms << "ms)" << std::endl;
-	#endif /* TIME_ATTACK */
+	time_attack::runLabeled(
+			"  ...Record result to host", ".................................finished.",
+			[&] {
+				holder.addResult(
+						targetIDArray,
+						targetIndexArray,
+						queryIDArray,
+						queryIndexArray,
+						tHitLengthArray,
+						qHitLengthArray,
+						matchNumArray,
+						scoreArray,
+						evalueArray);
+			});
 }
