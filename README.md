@@ -24,10 +24,16 @@ Current source layout in this branch:
 
 - `src/cli/`: CLI entrypoint and command-line parsing
 - `src/host/`: host-side orchestration and FASTA loading
+- `src/host/seq/`: `CHostSeqList` (base), `query` / `target` (pairs with `src/device/seq/`)
 - `src/device/`: CUDA device-side data structures and kernels support
+- `src/device/hit/`: hit list and Thrust host seed helpers
+- `src/device/seq/`: `CDeviceSeqList` (base), `query` / `target` specializations
 - `src/kernel/`: CUDA kernel translation units
-- `src/util/`: shared utilities and headers
+- `src/util/`: shared utilities (e.g. reverse complement, FASTA string and file size helpers)
 - `src/test_support/`: test-only support code
+- `tests/unit/device/hit/`: unit tests for `src/device/hit/*` (seed host API and sort; `clast_unit_tests`)
+- `tests/unit/util/`: host-only unit tests, no CUDA (`clast_host_unit_tests`)
+- `tests/smoke/`: tiny FASTA files and runtime smoke scripts for `ctest`
 - `tools/preprocess_db/`: database preprocessing helper source
 - `tools/divide_query/`: query-splitting helper source
 
@@ -149,14 +155,14 @@ GNU GPL
     (2) florting point value is now available for tRAM, qRAM, tVRAM, and qVRAM in command line parameter
 
 0.1.2 Apr.26, 2015:  
-    ~~Add "CDeviceHitList_alignmentHits.cuh.7.0" for CUDA 7.0.~~  
-    ~~Now CLAST can be built on CUDA 7.0 if it will be renamed "CDeviceHitList_alignmentHits.cuh".~~  
+    ~~Add "alignmentHits.cuh.7.0" for CUDA 7.0.~~  
+    ~~Now CLAST can be built on CUDA 7.0 if it will be renamed "alignmentHits.cuh".~~  
     ~~But it does not work.~~  
     ~~Please use CUDA 5.5 or CUDA 4.x, and Fermi or Kepler architecture GPU.~~
 
 0.1.3 Nov.19, 2015:  
     Fixed a bug.  
-    Remove "CDeviceHitList_alignmentHits.cuh.7.0".  
+    Remove "alignmentHits.cuh.7.0".  
     Remove "doc/READ_ME*".  
     Remove "Makefile.＊".  
     Edit "README.md".

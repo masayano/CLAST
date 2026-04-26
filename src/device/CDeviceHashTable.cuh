@@ -2,8 +2,8 @@
 #define C_DEVICE_HASH_TABLE_CUH_
 
 #include "host/CHostSetting.cuh"
-#include "host/CHostSeqList_query.cuh"
-#include "device/CDeviceSeqList_target.cuh"
+#include "host/seq/query.cuh"
+#include "device/seq/target.cuh"
 
 #include <thrust/device_vector.h>
 

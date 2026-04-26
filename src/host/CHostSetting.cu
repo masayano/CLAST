@@ -1,12 +1,12 @@
 #include "host/CHostSetting.cuh"
 
 #include "util/common.hpp"
+#include "util/fastaDataSizeUtil.hpp"
 
 #include "cli/listenCommandLine.hpp"
 
 #include <cmath>
 #include <iostream>
-#include <fstream>
 #include <vector>
 
 /**************************** validator *****************************/
@@ -41,20 +41,6 @@ void validator(
 		std::cout << " error : no output file was inputted." << std::endl;
 		abort();
 	}
-}
-
-long calcTotalDbSize(const std::vector<std::string>& targetFileArray) {
-	long totalDbSize = 0;
-	for(int i = 0; i < targetFileArray.size(); ++i) {
-		std::ifstream ifs(targetFileArray[i].c_str(), std::ios::binary);
-		std::string buf;
-		while(ifs && std::getline(ifs, buf)) {
-			if(buf.find(">") == std::string::npos) {
-				totalDbSize += buf.size();
-			}
-		}
-	}
-	return totalDbSize;
 }
 
 /**************************** class function *********************************/
@@ -136,7 +122,7 @@ CHostSetting::CHostSetting(const int argc, const char** argv) {
 	queryVRAMSize  *= (1000 * 1000);
 
 	/* create non user-editable option */
-	totalDatabaseSize = static_cast<double>(calcTotalDbSize(targetFileArray));
+	totalDatabaseSize = static_cast<double>(calcTotalDbSizeFromFastaPaths(targetFileArray));
 	K      = GLOBAL_K;
 	lambda = GLOBAL_LAMBDA;
 }

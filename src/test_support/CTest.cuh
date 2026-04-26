@@ -1,8 +1,8 @@
 #ifndef C_TEST_CUH_
 #define C_TEST_CUH_
 
-#include "device/CDeviceSeqList.cuh"
-#include "device/CDeviceHitList.cuh"
+#include "device/seq/CDeviceSeqList.cuh"
+#include "device/hit/CDeviceHitList.cuh"
 
 #include <fstream>
 #include <string>

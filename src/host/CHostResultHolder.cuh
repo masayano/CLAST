@@ -1,8 +1,8 @@
 #ifndef C_HOST_RESULT_HOLDER_CUH_
 #define C_HOST_RESULT_HOLDER_CUH_
 
-#include "host/CHostSeqList_query.cuh"
-#include "host/CHostSeqList_target.cuh"
+#include "host/seq/query.cuh"
+#include "host/seq/target.cuh"
 
 #include <string>
 #include <vector>

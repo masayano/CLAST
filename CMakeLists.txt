@@ -21,26 +21,26 @@ option(CLAST_ENABLE_TIME_ATTACK "Compile clast with TIME_ATTACK (verbose GPU tim
 
 set(CLAST_SOURCES
   src/device/CDeviceHashTable.cu
-  src/device/CDeviceHitList.cu
-  src/device/CDeviceHitList_alignmentHits.cu
-  src/device/CDeviceHitList_createRawSeedList.cu
-  src/device/CDeviceHitList_deleteBadHits.cu
-  src/device/CDeviceHitList_deleteDuplicateSeeds.cu
-  src/device/CDeviceHitList_deleteIsolateSeeds.cu
-  src/device/CDeviceHitList_deleteSeedsOnSequenceBoundary.cu
-  src/device/CDeviceHitList_seed_host_api.cu
-  src/device/CDeviceHitList_sortSeeds.cu
-  src/device/CDeviceSeqList.cu
-  src/device/CDeviceSeqList_query.cu
-  src/device/CDeviceSeqList_target.cu
+  src/device/hit/CDeviceHitList.cu
+  src/device/hit/alignmentHits.cu
+  src/device/hit/createRawSeedList.cu
+  src/device/hit/deleteBadHits.cu
+  src/device/hit/deleteDuplicateSeeds.cu
+  src/device/hit/deleteIsolateSeeds.cu
+  src/device/hit/deleteSeedsOnSequenceBoundary.cu
+  src/device/hit/seedHostApi.cu
+  src/device/hit/sortSeeds.cu
+  src/device/seq/CDeviceSeqList.cu
+  src/device/seq/query.cu
+  src/device/seq/target.cu
   src/host/CFASTALoader.cpp
   src/host/CHostFASTA.cpp
   src/host/CHostMapper.cu
   src/host/CHostResultHolder.cu
   src/host/CHostSchedular.cu
-  src/host/CHostSeqList.cu
-  src/host/CHostSeqList_query.cu
-  src/host/CHostSeqList_target.cu
+  src/host/seq/CHostSeqList.cu
+  src/host/seq/query.cu
+  src/host/seq/target.cu
   src/host/CHostSetting.cu
   src/test_support/CTest.cu
   src/kernel/krnlAlignment.cu
@@ -49,6 +49,8 @@ set(CLAST_SOURCES
   src/kernel/krnlWriteSeedList.cu
   src/cli/listenCommandLine.cpp
   src/cli/main.cu
+  src/util/fastaStringUtil.cpp
+  src/util/fastaDataSizeUtil.cpp
   src/util/utilAddSequence.cu
   src/util/utilResultSorting.cu
   src/util/utilReverseSeq.cpp
@@ -79,14 +81,19 @@ if(BUILD_TESTING)
   FetchContent_MakeAvailable(googletest)
 
   add_executable(clast_unit_tests
-    tests/unit/device_hitlist_host_api_test.cpp
-    src/device/CDeviceHitList_seed_host_api.cu
+    tests/unit/device/hit/sortSeedsTest.cpp
+    tests/unit/device/hit/seedHostApiTest.cpp
+    src/device/hit/seedHostApi.cu
   )
-  set_source_files_properties(tests/unit/device_hitlist_host_api_test.cpp
-    PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(
+    tests/unit/device/hit/sortSeedsTest.cpp
+    tests/unit/device/hit/seedHostApiTest.cpp
+    PROPERTIES LANGUAGE CUDA
+  )
   target_include_directories(clast_unit_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/unit/device/hit
     ${CUDAToolkit_INCLUDE_DIRS}
   )
   target_link_libraries(clast_unit_tests PRIVATE
@@ -99,6 +106,25 @@ if(BUILD_TESTING)
   )
   include(GoogleTest)
   gtest_discover_tests(clast_unit_tests)
+
+  # Host-only free functions: no CUDA in these sources; runnable without a GPU.
+  add_executable(clast_host_unit_tests
+    tests/unit/util/utilReverseSeqTest.cpp
+    tests/unit/util/fastaStringUtilTest.cpp
+    tests/unit/util/fastaDataSizeTest.cpp
+    src/util/utilReverseSeq.cpp
+    src/util/fastaStringUtil.cpp
+    src/util/fastaDataSizeUtil.cpp
+  )
+  target_include_directories(clast_host_unit_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+  target_link_libraries(clast_host_unit_tests PRIVATE GTest::gtest_main)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0")
+    target_link_libraries(clast_host_unit_tests PRIVATE stdc++fs)
+  endif()
+  gtest_discover_tests(clast_host_unit_tests)
 
   add_test(
     NAME clast_build_artifacts

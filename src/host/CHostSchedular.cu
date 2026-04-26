@@ -4,8 +4,8 @@
 #include "util/time_attack.hpp"
 
 #include "device/CDeviceHashTable.cuh"
-#include "device/CDeviceHitList.cuh"
-#include "device/CDeviceSeqList_query.cuh"
+#include "device/hit/CDeviceHitList.cuh"
+#include "device/seq/query.cuh"
 
 #include <iostream>
 #include <memory>
