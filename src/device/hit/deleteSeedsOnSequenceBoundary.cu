@@ -1,5 +1,4 @@
 #include "device/hit/deleteSeedsOnSequenceBoundary.cuh"
-#include "device/hit/seedHostApi.cuh"
 
 #include "util/common.hpp"
 #include "util/time_attack.hpp"
@@ -29,7 +28,7 @@ void removeSeedsOnSequenceBoundary(
 	// Same memory space for remove_if (host seeds → host length arrays); explicit D→H copy.
 	host_vector<int> qLen = q.getLengthArray();
 	host_vector<int> tLen = h.getTarget().getLengthArray();
-	onQueryBoundary(
+	clast::hit::onQueryBoundary(
 			s.getLMerLength(),
 			q_begin,
 			qLen,
@@ -37,7 +36,7 @@ void removeSeedsOnSequenceBoundary(
 			h_tIdxArray,
 			h_qIDArray,
 			h_qIdxArray);
-	onTargetBoundary(
+	clast::hit::onTargetBoundary(
 			s.getLMerLength(),
 			t_begin,
 			tLen,
@@ -46,7 +45,7 @@ void removeSeedsOnSequenceBoundary(
 			h_qIDArray,
 			h_qIdxArray);
 	if (!s.getFlgLocal()) {
-		onCorner(
+		clast::hit::onCorner(
 				s.getAllowableGap(),
 				t_begin,
 				q_begin,

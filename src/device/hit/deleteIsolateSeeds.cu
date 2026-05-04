@@ -1,5 +1,4 @@
 #include "device/hit/deleteIsolateSeeds.cuh"
-#include "device/hit/seedHostApi.cuh"
 
 #include "util/common.hpp"
 #include "util/time_attack.hpp"
@@ -23,7 +22,7 @@ void removeIsolateSeeds(
 	host_vector<int> h_tIdxArray = seed_targetIndexArray;
 	host_vector<int> h_qIDArray  = seed_queryIDArray;
 	host_vector<int> h_qIdxArray = seed_queryIndexArray;
-	deleteSeedHasNotNearPair(
+	clast::hit::deleteSeedHasNotNearPair(
 			allowableWidth,
 			allowableGap,
 			h_tIDArray,

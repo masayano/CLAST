@@ -1,14 +1,17 @@
-// Unit tests for host-side Thrust seed helpers (`seedHostApi.cuh` → `clast::hit::*` in
-// `seedThrustVectorOps.cuh`): duplicate removal, isolate removal, boundary filters, corner filter.
+// Unit tests for host-side Thrust seed helpers: duplicate removal, isolate removal,
+// boundary filters, corner filter.
 // Inputs use `measureDistanceSorting` from `sortSeeds.cuh` when sort order matters.
 
-#include "device/hit/seedHostApi.cuh"
+#include "device/hit/deleteDuplicateSeeds.cuh"
+#include "device/hit/deleteIsolateSeeds.cuh"
+#include "device/hit/deleteSeedsOnSequenceBoundary.cuh"
 #include "device/hit/sortSeeds.cuh"
 #include "hitTestUtil.hpp"
 
 #include <gtest/gtest.h>
 
 using clast::test::hit::MakeIntVec;
+using namespace clast::hit;
 
 // `deleteDuplicateSeeds` only runs removal when size > 1. Zero rows stays empty; one row is untouched.
 TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {

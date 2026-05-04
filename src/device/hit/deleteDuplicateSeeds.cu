@@ -1,5 +1,4 @@
 #include "device/hit/deleteDuplicateSeeds.cuh"
-#include "device/hit/seedHostApi.cuh"
 
 #include "util/common.hpp"
 #include "util/time_attack.hpp"
@@ -21,7 +20,7 @@ void removeDuplicateSeeds(
 	host_vector<int> h_tIdxArray = seed_targetIndexArray;
 	host_vector<int> h_qIDArray  = seed_queryIDArray;
 	host_vector<int> h_qIdxArray = seed_queryIndexArray;
-	deleteDuplicateSeeds(
+	clast::hit::deleteDuplicateSeeds(
 			s.getAllowableWidth(),
 			s.getAllowableGap(),
 			h_tIDArray,
