@@ -1,5 +1,4 @@
 #include "device/hit/sortSeeds.cuh"
-#include "device/hit/seedHostApi.cuh"
 
 #include "util/common.hpp"
 #include "util/time_attack.hpp"

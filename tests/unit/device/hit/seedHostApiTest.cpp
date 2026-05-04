@@ -1,6 +1,6 @@
-// Unit tests for host-side Thrust seed helpers in `src/device/hit/seedHostApi.cu`
-// (wrappers around duplicate removal, isolate removal, sequence-boundary filters, corner filter).
-// Inputs are built with `measureDistanceSorting` from `sortSeeds.cuh` when sort order matters.
+// Unit tests for host-side Thrust seed helpers (`seedHostApi.cuh` → `clast::hit::*` in
+// `seedThrustVectorOps.cuh`): duplicate removal, isolate removal, boundary filters, corner filter.
+// Inputs use `measureDistanceSorting` from `sortSeeds.cuh` when sort order matters.
 
 #include "device/hit/seedHostApi.cuh"
 #include "device/hit/sortSeeds.cuh"

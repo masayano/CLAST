@@ -26,10 +26,13 @@ void removeSeedsOnSequenceBoundary(
 	host_vector<int> h_tIdxArray = seed_targetIndexArray;
 	host_vector<int> h_qIDArray  = seed_queryIDArray;
 	host_vector<int> h_qIdxArray = seed_queryIndexArray;
+	// Same memory space for remove_if (host seeds → host length arrays); explicit D→H copy.
+	host_vector<int> qLen = q.getLengthArray();
+	host_vector<int> tLen = h.getTarget().getLengthArray();
 	onQueryBoundary(
 			s.getLMerLength(),
 			q_begin,
-			q.getLengthArray(),
+			qLen,
 			h_tIDArray,
 			h_tIdxArray,
 			h_qIDArray,
@@ -37,7 +40,7 @@ void removeSeedsOnSequenceBoundary(
 	onTargetBoundary(
 			s.getLMerLength(),
 			t_begin,
-			h.getTarget().getLengthArray(),
+			tLen,
 			h_tIDArray,
 			h_tIdxArray,
 			h_qIDArray,
@@ -47,8 +50,8 @@ void removeSeedsOnSequenceBoundary(
 				s.getAllowableGap(),
 				t_begin,
 				q_begin,
-				h.getTarget().getLengthArray(),
-				q.getLengthArray(),
+				tLen,
+				qLen,
 				h_tIDArray,
 				h_tIdxArray,
 				h_qIDArray,

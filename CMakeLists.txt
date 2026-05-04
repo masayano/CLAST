@@ -28,7 +28,6 @@ set(CLAST_SOURCES
   src/device/hit/deleteDuplicateSeeds.cu
   src/device/hit/deleteIsolateSeeds.cu
   src/device/hit/deleteSeedsOnSequenceBoundary.cu
-  src/device/hit/seedHostApi.cu
   src/device/hit/sortSeeds.cu
   src/device/seq/CDeviceSeqList.cu
   src/device/seq/query.cu
@@ -83,7 +82,6 @@ if(BUILD_TESTING)
   add_executable(clast_unit_tests
     tests/unit/device/hit/sortSeedsTest.cpp
     tests/unit/device/hit/seedHostApiTest.cpp
-    src/device/hit/seedHostApi.cu
   )
   set_source_files_properties(
     tests/unit/device/hit/sortSeedsTest.cpp
