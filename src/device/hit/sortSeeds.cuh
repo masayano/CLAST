@@ -9,6 +9,12 @@ void sortSeeds(
 		thrust::device_vector<int>& seed_queryIDArray,
 		thrust::device_vector<int>& seed_queryIndexArray);
 
+#include <thrust/iterator/permutation_iterator.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/sort.h>
+
+namespace clast::hit {
+
 struct measure_distance {
 	template <class Tuple1, class Tuple2>
 	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
@@ -53,11 +59,6 @@ struct measure_distance {
 	}
 };
 
-
-#include <thrust/iterator/permutation_iterator.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/sort.h>
-
 template <class ThrustVector>
 void measureDistanceSorting(
 		ThrustVector& seed_targetIDArray,
@@ -86,5 +87,7 @@ void measureDistanceSorting(
 			measure_distance()
 	);
 }
+
+} // namespace clast::hit
 
 #endif

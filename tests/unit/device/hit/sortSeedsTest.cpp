@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 using clast::test::hit::MakeIntVec;
+using namespace clast::hit;
 
 // Empty input: `measureDistanceSorting` must not allocate rows or crash; vectors stay size 0.
 TEST(SortSeeds, EmptyUnchanged) {

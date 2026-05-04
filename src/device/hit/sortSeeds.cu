@@ -18,7 +18,7 @@ void sortSeeds(
 			"  ...measure distance sorting",
 			"..............................finished.",
 			[&] {
-				measureDistanceSorting(
+				clast::hit::measureDistanceSorting(
 						seed_targetIDArray,
 						seed_targetIndexArray,
 						seed_queryIDArray,
