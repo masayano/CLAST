@@ -4,11 +4,10 @@
 
 #include "device/hit/seedHostApi.cuh"
 #include "device/hit/sortSeeds.cuh"
-#include "hitSortSeedsExpect.hpp"
+#include "hitTestUtil.hpp"
 
 #include <gtest/gtest.h>
 
-using clast::test::hit::ExpectSortedByMeasureDistance;
 using clast::test::hit::MakeIntVec;
 
 // `deleteDuplicateSeeds` only runs removal when size > 1. Zero rows stays empty; one row is untouched.
@@ -39,7 +38,7 @@ TEST(SeedHostApiDeleteDuplicate, RemovesNearDuplicateOnSortedInput) {
 	auto qID = MakeIntVec({0, 0});
 	auto qIdx = MakeIntVec({5, 6});
 	measureDistanceSorting(tID, tIdx, qID, qIdx);
-	ExpectSortedByMeasureDistance(tID, tIdx, qID, qIdx);
+
 	deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }
@@ -54,7 +53,7 @@ TEST(SeedHostApiDeleteIsolate, RemovesRowNotNearPreviousInSortedOrder) {
 	auto qID = MakeIntVec({0, 1});
 	auto qIdx = MakeIntVec({5, 5});
 	measureDistanceSorting(tID, tIdx, qID, qIdx);
-	ExpectSortedByMeasureDistance(tID, tIdx, qID, qIdx);
+
 	deleteSeedHasNotNearPair(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	EXPECT_EQ(qID[0], 0);

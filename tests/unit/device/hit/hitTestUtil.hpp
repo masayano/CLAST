@@ -4,7 +4,6 @@
 
 #include <initializer_list>
 #include <thrust/host_vector.h>
-#include <thrust/tuple.h>
 
 namespace clast {
 namespace test {
@@ -19,14 +18,6 @@ inline thrust::host_vector<int> MakeIntVec(std::initializer_list<int> xs) {
 	return v;
 }
 
-inline thrust::tuple<int, int, int, int> RowAt(
-		const thrust::host_vector<int>& tID,
-		const thrust::host_vector<int>& tIdx,
-		const thrust::host_vector<int>& qID,
-		const thrust::host_vector<int>& qIdx,
-		int i) {
-	return thrust::make_tuple(tID[i], tIdx[i], qID[i], qIdx[i]);
-}
 
 }  // namespace hit
 }  // namespace test
