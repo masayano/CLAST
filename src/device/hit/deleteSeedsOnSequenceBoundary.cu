@@ -10,7 +10,7 @@
 
 #include <thrust/host_vector.h>
 
-void removeSeedsOnSequenceBoundary(
+void deleteSeedsOnSequenceBoundaryImpl(
 		const CHostSetting& s,
 		const CDeviceHashTable& h,
 		const CDeviceSeqList_query& q,
@@ -80,7 +80,7 @@ void deleteSeedsOnSequenceBoundary(
 	time_attack::runLabeledWithSuffix(
 			"  ...deleting hits on sequence boundary", "....................finished.",
 			[&] {
-				removeSeedsOnSequenceBoundary(
+				deleteSeedsOnSequenceBoundaryImpl(
 						s,
 						h,
 						q,

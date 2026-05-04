@@ -10,7 +10,7 @@
 
 #include <thrust/host_vector.h>
 
-void removeIsolateSeeds(
+void deletingIsolateSeedsImpl(
 		const int allowableWidth,
 		const int allowableGap,
 		thrust::device_vector<int>& seed_targetIDArray,
@@ -50,7 +50,7 @@ void deletingIsolateSeeds(
 	time_attack::runLabeledWithSuffix(
 			"  ...deleting isolate seeds", "................................finished.",
 			[&] {
-				removeIsolateSeeds(
+				deletingIsolateSeedsImpl(
 						allowableWidth,
 						allowableGap,
 						seed_targetIDArray,

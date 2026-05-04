@@ -9,7 +9,7 @@
 
 #include <thrust/host_vector.h>
 
-void removeDuplicateSeeds(
+void deleteDuplicateSeedsImpl(
 		const CHostSetting& s,
 		thrust::device_vector<int>& seed_targetIDArray,
 		thrust::device_vector<int>& seed_targetIndexArray,
@@ -47,7 +47,7 @@ void deleteDuplicateSeeds(
 	time_attack::runLabeledWithSuffix(
 			"  ...deleting duplicate seeds", "..............................finished.",
 			[&] {
-				removeDuplicateSeeds(
+				deleteDuplicateSeedsImpl(
 						s,
 						seed_targetIDArray,
 						seed_targetIndexArray,
