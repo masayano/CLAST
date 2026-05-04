@@ -9,6 +9,7 @@
 using clast::test::hit::ExpectSortedByMeasureDistance;
 using clast::test::hit::MakeIntVec;
 
+// Empty input: `measureDistanceSorting` must not allocate rows or crash; vectors stay size 0.
 TEST(SortSeeds, EmptyUnchanged) {
 	auto tID = MakeIntVec({});
 	auto tIdx = MakeIntVec({});
@@ -18,6 +19,7 @@ TEST(SortSeeds, EmptyUnchanged) {
 	ASSERT_EQ(tID.size(), 0u);
 }
 
+// Single row: sort key order is vacuously satisfied; all four columns must be preserved verbatim.
 TEST(SortSeeds, SingleRowUnchanged) {
 	auto tID = MakeIntVec({1});
 	auto tIdx = MakeIntVec({2});

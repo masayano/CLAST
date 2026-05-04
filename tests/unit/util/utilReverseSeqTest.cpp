@@ -1,10 +1,13 @@
+// Unit tests for `src/util/utilReverseSeq.cpp` / `utilReverseSeq.hpp`:
+// Watson–Crick complement (`compBase`) and reverse-complement (`compSeq`).
+
 #include "util/utilReverseSeq.hpp"
 
 #include <gtest/gtest.h>
 
 #include <string>
 
-/* compBase: W–C pair for a single IUPAC base (unknown -> N). */
+// Strict ACGT pairing in switch; anything else falls through to default → 'N'.
 TEST(CompBase, WatsonCrick) {
 	EXPECT_EQ(compBase('A'), 'T');
 	EXPECT_EQ(compBase('T'), 'A');
@@ -12,11 +15,13 @@ TEST(CompBase, WatsonCrick) {
 	EXPECT_EQ(compBase('C'), 'G');
 }
 
+// Lowercase (and other non-switch cases) → default branch → 'N' (case-sensitive API).
 TEST(CompBase, NonAtgcReturnsN) { EXPECT_EQ(compBase('n'), 'N'); }
 
-/* compSeq: reverse-complement (Watson–Crick), one char at a time from 3' end. */
+// Empty input → empty output; reverse iteration has nothing to consume.
 TEST(CompSeq, Empty) { EXPECT_EQ(compSeq(""), ""); }
 
+// Single-base strings: reverse order trivial; complement maps each ACGT endpoint.
 TEST(CompSeq, SingleBases) {
 	EXPECT_EQ(compSeq("A"), "T");
 	EXPECT_EQ(compSeq("T"), "A");
@@ -24,22 +29,24 @@ TEST(CompSeq, SingleBases) {
 	EXPECT_EQ(compSeq("C"), "G");
 }
 
+// Unknown monomers complement to N; palindromic unknown stays N.
 TEST(CompSeq, UnknownBecomesN) {
 	EXPECT_EQ(compSeq("N"), "N");
 	EXPECT_EQ(compSeq("X"), "N");
 }
 
+// Length-2 palindromes under RC: order reverses then complements → same string ("AT", "GC").
 TEST(CompSeq, ShortSequence) {
 	EXPECT_EQ(compSeq("AT"), "AT");
-	// "GC" -> reverse then complement -> "GC" (C,G -> G,C in output order = "GC")
 	EXPECT_EQ(compSeq("GC"), "GC");
 }
 
+// Canonical four-mer check: reverse "CGTA" then complement → "GCAT".
 TEST(CompSeq, ForwardStrandExample) {
 	EXPECT_EQ(compSeq("ATGC"), "GCAT");
 }
 
-// Lowercase letters are not ACGT uppercase → compBase returns 'N' for all of them.
+// Lowercase letters hit default in compBase → each becomes N; output order still reversed.
 TEST(CompBase, LowercaseReturnsN) {
 	EXPECT_EQ(compBase('a'), 'N');
 	EXPECT_EQ(compBase('t'), 'N');
@@ -47,7 +54,7 @@ TEST(CompBase, LowercaseReturnsN) {
 	EXPECT_EQ(compBase('c'), 'N');
 }
 
-// Other non-ACGT characters (uppercase and symbols) also return 'N'.
+// Non-ACGT uppercase / symbols: same default → N per position.
 TEST(CompBase, OtherNonACGTReturnsN) {
 	EXPECT_EQ(compBase('U'), 'N');
 	EXPECT_EQ(compBase('B'), 'N');
@@ -55,24 +62,22 @@ TEST(CompBase, OtherNonACGTReturnsN) {
 	EXPECT_EQ(compBase('-'), 'N');
 }
 
-// compSeq on a longer sequence: reverse-complement is applied correctly.
-// "AATGCC" → reverse: "CCGTAA" → complement each: "GGCATT"
+// Step-by-step: "AATGCC" reversed → "CCGTAA"; complement → "GGCATT".
 TEST(CompSeq, LongSequence) {
 	EXPECT_EQ(compSeq("AATGCC"), "GGCATT");
 }
 
-// Lowercase in a sequence: each base becomes 'N', then reversed.
+// Entire lowercase string → all N before reverse → still all N.
 TEST(CompSeq, LowercaseBecomesAllN) {
 	EXPECT_EQ(compSeq("atgc"), "NNNN");
 }
 
-// Sequence already containing only N stays all-N after reverse-complement.
+// All-N input: reverse unchanged; compBase('N') → 'N'.
 TEST(CompSeq, AllNSequenceStaysAllN) {
 	EXPECT_EQ(compSeq("NNN"), "NNN");
 }
 
-// Mixed uppercase ACGT and unknown: unknowns become 'N', ACGT complement normally.
-// "ANTG" → reverse: "GTNA" → complement: "CANT"
+// Mixed: known bases complement; unknown maps to N. "ANTG" → reverse "GTNA" → "CANT".
 TEST(CompSeq, MixedKnownAndUnknown) {
 	EXPECT_EQ(compSeq("ANTG"), "CANT");
 }

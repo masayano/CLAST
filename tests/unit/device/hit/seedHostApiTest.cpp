@@ -1,5 +1,6 @@
 // Unit tests for host-side Thrust seed helpers in `src/device/hit/seedHostApi.cu`
-// (duplicate / isolate / boundary / corner), plus `sortSeeds` where needed to build input.
+// (wrappers around duplicate removal, isolate removal, sequence-boundary filters, corner filter).
+// Inputs are built with `measureDistanceSorting` from `sortSeeds.cuh` when sort order matters.
 
 #include "device/hit/seedHostApi.cuh"
 #include "device/hit/sortSeeds.cuh"
@@ -10,6 +11,7 @@
 using clast::test::hit::ExpectSortedByMeasureDistance;
 using clast::test::hit::MakeIntVec;
 
+// `deleteDuplicateSeeds` only runs removal when size > 1. Zero rows stays empty; one row is untouched.
 TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {
 	const int W = 100;
 	const int G = 8;
@@ -27,6 +29,8 @@ TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {
 	ASSERT_EQ(tID.size(), 0u);
 }
 
+// Two adjacent seeds in measure-distance order that fall within (W,G) “near pair” → second removed.
+// Rows (0,10,0,5) and (0,11,0,6): same qID/tID; indices differ by 1 on both axes → duplicate pair.
 TEST(SeedHostApiDeleteDuplicate, RemovesNearDuplicateOnSortedInput) {
 	const int W = 100;
 	const int G = 8;
@@ -40,6 +44,8 @@ TEST(SeedHostApiDeleteDuplicate, RemovesNearDuplicateOnSortedInput) {
 	ASSERT_EQ(tID.size(), 1u);
 }
 
+// `deleteSeedHasNotNearPair` drops rows that have no predecessor within (W,G).
+// Same tIdx but qID jumps 0→1: second row is not “near” first → isolate removed; first (qID=0) remains.
 TEST(SeedHostApiDeleteIsolate, RemovesRowNotNearPreviousInSortedOrder) {
 	const int W = 100;
 	const int G = 8;
@@ -54,6 +60,7 @@ TEST(SeedHostApiDeleteIsolate, RemovesRowNotNearPreviousInSortedOrder) {
 	EXPECT_EQ(qID[0], 0);
 }
 
+// Effective end position kMer + qIdx must not exceed qLen[qID]. Here 15+86 > 100 → seed dropped.
 TEST(SeedHostApiBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
 	const int kMer = 15;
 	const int q_begin = 0;
@@ -66,7 +73,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
 	ASSERT_EQ(tID.size(), 0u);
 }
 
-// Exact boundary: kMer + idx == length → kept (is_onBoundary uses strict >)
+// Query boundary: removal uses strict `>` vs length. kMer+idx == qLen → still valid → row kept.
 TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsExactBoundary) {
 	const int kMer = 15;
 	const int q_begin = 0;
@@ -79,6 +86,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsExactBoundary) {
 	ASSERT_EQ(tID.size(), 1u);
 }
 
+// Strict inequality: kMer+idx < qLen → interior hit → kept.
 TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsInteriorSeed) {
 	const int kMer = 15;
 	const int q_begin = 0;
@@ -91,6 +99,8 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsInteriorSeed) {
 	ASSERT_EQ(tID.size(), 1u);
 }
 
+// `q_begin` only offsets into `qLengthArray`: effective length is `qLengthArray[qID - q_begin]`.
+// qID=10, q_begin=10 → length 1000; kMer+qIdx = 10+991 = 1001 > 1000 → removed.
 TEST(SeedHostApiBoundary, OnQueryBoundaryRespectsQBeginOffset) {
 	const int kMer = 10;
 	const int q_begin = 10;
@@ -118,6 +128,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRetainsOnlyInBoundSeed) {
 	EXPECT_EQ(qIdx[0], 80);
 }
 
+// Same rule on target: kMer + tIdx must not exceed tLen[tID]. Here 12+190 > 200 → removed.
 TEST(SeedHostApiBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
 	const int kMer = 12;
 	const int t_begin = 0;
@@ -130,7 +141,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
 	ASSERT_EQ(tID.size(), 0u);
 }
 
-// Exact boundary: kMer + tIdx == tLength → kept
+// Target boundary: same strict `>` rule as query — equality kMer+tIdx == tLen keeps the seed.
 TEST(SeedHostApiBoundary, OnTargetBoundaryKeepsExactBoundary) {
 	const int kMer = 12;
 	const int t_begin = 0;

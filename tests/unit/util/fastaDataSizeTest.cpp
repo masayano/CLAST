@@ -1,3 +1,6 @@
+// Unit tests for `src/util/fastaDataSizeUtil.cpp` / `fastaDataSizeUtil.hpp`:
+// `calcTotalDbSizeFromFastaPaths` — sums lengths of non-header FASTA lines across files.
+
 #include "util/fastaDataSizeUtil.hpp"
 
 #include <gtest/gtest.h>
@@ -23,10 +26,13 @@ fs::path writeTempFasta(const std::string& name, const std::string& content) {
 
 } // namespace
 
+// No paths → loop body never runs → total 0 (baseline for callers aggregating DB size).
 TEST(FastaDataSize, EmptyPathList) {
 	EXPECT_EQ(calcTotalDbSizeFromFastaPaths({}), 0L);
 }
 
+// Classic FASTA: lines containing `>` are skipped; only residue lines contribute `buf.size()`
+// (newlines stripped by `getline`). Two sequences "ATGC" (4) + "GG" (2) → 6.
 TEST(FastaDataSize, SumsDataLinesExcludingHeader) {
 	const std::string name = "clast_ut_fasta_data_1.fa";
 	const fs::path p = writeTempFasta(
@@ -36,8 +42,9 @@ TEST(FastaDataSize, SumsDataLinesExcludingHeader) {
 	ASSERT_EQ(n, 4L + 2L);
 }
 
+// Rule is `buf.find('>') != npos` → skip entire line if `>` appears anywhere (not only column 0).
+// "AT>GC" skipped; "XX" counts 2.
 TEST(FastaDataSize, SkipsLineContainingAnyGreaterThan) {
-	// Per implementation: a line is skipped if it contains '>'.
 	const std::string name = "clast_ut_fasta_data_2.fa";
 	const fs::path p = writeTempFasta(
 			name, "AT>GC\nXX\n");
@@ -46,6 +53,7 @@ TEST(FastaDataSize, SkipsLineContainingAnyGreaterThan) {
 	EXPECT_EQ(n, 2L);
 }
 
+// Multiple paths: each file scanned independently; totals summed (order of paths irrelevant).
 TEST(FastaDataSize, MultipleFiles) {
 	const std::string n1 = "clast_ut_fasta_m1.fa";
 	const std::string n2 = "clast_ut_fasta_m2.fa";
@@ -58,7 +66,7 @@ TEST(FastaDataSize, MultipleFiles) {
 	EXPECT_EQ(n, 1L + 2L);
 }
 
-// File that contains only header lines contributes 0.
+// Only headers → every line skipped → contribution 0 from this file.
 TEST(FastaDataSize, FileWithOnlyHeadersIsZero) {
 	const fs::path p = writeTempFasta(
 			"clast_ut_fasta_headers_only.fa", ">seq1\n>seq2\n");
@@ -67,7 +75,7 @@ TEST(FastaDataSize, FileWithOnlyHeadersIsZero) {
 	EXPECT_EQ(n, 0L);
 }
 
-// A completely empty file contributes 0.
+// Empty stream: `getline` never yields data lines → 0.
 TEST(FastaDataSize, EmptyFileIsZero) {
 	const fs::path p = writeTempFasta("clast_ut_fasta_empty.fa", "");
 	const long n = calcTotalDbSizeFromFastaPaths({p.string()});
@@ -75,24 +83,20 @@ TEST(FastaDataSize, EmptyFileIsZero) {
 	EXPECT_EQ(n, 0L);
 }
 
-// '>' anywhere in the line (not just at position 0) causes the whole line to be skipped.
-// The SkipsLineContainingAnyGreaterThan test already covers mid-line '>'.
-// This test verifies the retained data line contributes its full length.
+// Mid-line `>` skips whole line; following pure data line contributes full length ("GGG" → 3).
 TEST(FastaDataSize, MidLineGreaterThanSkipsEntireLine) {
 	const fs::path p = writeTempFasta(
 			"clast_ut_fasta_midgt.fa", "ATGC>X\nGGG\n");
-	// First line has '>' → skipped (0 chars). Second line: "GGG\n" → 3 chars.
 	const long n = calcTotalDbSizeFromFastaPaths({p.string()});
 	fs::remove(p);
 	EXPECT_EQ(n, 3L);
 }
 
-// Newline-only lines (empty data lines) contribute 0 each.
+// Blank lines (getline → empty `buf`) contain no `>` → counted as 0-length data lines.
+// ">header\n\nAT\n\n" → 0 + 2 + 0 = 2.
 TEST(FastaDataSize, BlankDataLinesContributeZero) {
 	const fs::path p = writeTempFasta(
 			"clast_ut_fasta_blank.fa", ">header\n\nAT\n\n");
-	// "\n" line: buf="" (getline strips newline), no '>'; buf.size()=0
-	// "AT\n" line: buf="AT", size=2
 	const long n = calcTotalDbSizeFromFastaPaths({p.string()});
 	fs::remove(p);
 	EXPECT_EQ(n, 0L + 2L + 0L);
