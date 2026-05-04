@@ -11,7 +11,6 @@
 #include <gtest/gtest.h>
 
 using clast::test::hit::MakeIntVec;
-using namespace clast::hit;
 
 // `deleteDuplicateSeeds` only runs removal when size > 1. Zero rows stays empty; one row is untouched.
 TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {
@@ -21,13 +20,13 @@ TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {
 	auto tIdx = MakeIntVec({11});
 	auto qID = MakeIntVec({2});
 	auto qIdx = MakeIntVec({5});
-	deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
+	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	tID.clear();
 	tIdx.clear();
 	qID.clear();
 	qIdx.clear();
-	deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
+	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -40,9 +39,9 @@ TEST(SeedHostApiDeleteDuplicate, RemovesNearDuplicateOnSortedInput) {
 	auto tIdx = MakeIntVec({10, 11});
 	auto qID = MakeIntVec({0, 0});
 	auto qIdx = MakeIntVec({5, 6});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
-	deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
+	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }
 
@@ -55,9 +54,9 @@ TEST(SeedHostApiDeleteIsolate, RemovesRowNotNearPreviousInSortedOrder) {
 	auto tIdx = MakeIntVec({10, 10});
 	auto qID = MakeIntVec({0, 1});
 	auto qIdx = MakeIntVec({5, 5});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
-	deleteSeedHasNotNearPair(W, G, tID, tIdx, qID, qIdx);
+	clast::hit::deleteSeedHasNotNearPair(W, G, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	EXPECT_EQ(qID[0], 0);
 }
@@ -71,7 +70,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
 	auto tIdx = MakeIntVec({0});
 	auto qID = MakeIntVec({0});
 	auto qIdx = MakeIntVec({86}); // kMer(15) + idx(86) = 101 > 100
-	onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -84,7 +83,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsExactBoundary) {
 	auto tIdx = MakeIntVec({0});
 	auto qID = MakeIntVec({0});
 	auto qIdx = MakeIntVec({85}); // kMer(15) + idx(85) = 100 == 100 → keep
-	onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }
 
@@ -97,7 +96,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsInteriorSeed) {
 	auto tIdx = MakeIntVec({0});
 	auto qID = MakeIntVec({0});
 	auto qIdx = MakeIntVec({84}); // kMer(15) + idx(84) = 99 < 100
-	onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }
 
@@ -111,7 +110,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRespectsQBeginOffset) {
 	auto tIdx = MakeIntVec({0});
 	auto qID = MakeIntVec({10});
 	auto qIdx = MakeIntVec({991}); // kMer(10) + idx(991) = 1001 > 1000
-	onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -124,8 +123,8 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRetainsOnlyInBoundSeed) {
 	auto tIdx = MakeIntVec({0, 0});
 	auto qID  = MakeIntVec({0, 0});
 	auto qIdx = MakeIntVec({80, 90}); // 15+80=95 ok; 15+90=105 > 100
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
-	onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::onQueryBoundary(kMer, q_begin, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	EXPECT_EQ(qIdx[0], 80);
 }
@@ -139,7 +138,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
 	auto tIdx = MakeIntVec({190}); // kMer(12) + idx(190) = 202 > 200
 	auto qID = MakeIntVec({0});
 	auto qIdx = MakeIntVec({0});
-	onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
+	clast::hit::onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -152,7 +151,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryKeepsExactBoundary) {
 	auto tIdx = MakeIntVec({188}); // kMer(12) + idx(188) = 200 == 200 → keep
 	auto qID  = MakeIntVec({0});
 	auto qIdx = MakeIntVec({0});
-	onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
+	clast::hit::onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }
 
@@ -165,8 +164,8 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryRetainsOnlyInBoundSeed) {
 	auto tIdx = MakeIntVec({39, 45}); // 10+39=49 ok; 10+45=55 > 50
 	auto qID  = MakeIntVec({0, 0});
 	auto qIdx = MakeIntVec({0, 5});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
-	onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::onTargetBoundary(kMer, t_begin, tLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	EXPECT_EQ(tIdx[0], 39);
 }
@@ -183,7 +182,7 @@ TEST(SeedHostApiBoundary, OnCornerRemovesLowerLeftCorner) {
 	auto tIdx = MakeIntVec({5});
 	auto qID  = MakeIntVec({0});
 	auto qIdx = MakeIntVec({30}); // tHitStartIdx=-25; -25+8=-17 < 0
-	onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -199,7 +198,7 @@ TEST(SeedHostApiBoundary, OnCornerRemovesUpperRightCorner) {
 	auto tIdx = MakeIntVec({80});
 	auto qID  = MakeIntVec({0});
 	auto qIdx = MakeIntVec({5}); // tHitStartIdx=75; 75+50-8=117 > 100
-	onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -215,6 +214,6 @@ TEST(SeedHostApiBoundary, OnCornerKeepsInteriorSeed) {
 	auto tIdx = MakeIntVec({20});
 	auto qID  = MakeIntVec({0});
 	auto qIdx = MakeIntVec({5}); // tHitStartIdx=15; 23>=0 and 57<=100
-	onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
+	clast::hit::onCorner(gap, t_begin, q_begin, tLen, qLen, tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 }

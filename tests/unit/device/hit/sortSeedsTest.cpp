@@ -7,7 +7,6 @@
 #include <gtest/gtest.h>
 
 using clast::test::hit::MakeIntVec;
-using namespace clast::hit;
 
 // Empty input: `measureDistanceSorting` must not allocate rows or crash; vectors stay size 0.
 TEST(SortSeeds, EmptyUnchanged) {
@@ -15,7 +14,7 @@ TEST(SortSeeds, EmptyUnchanged) {
 	auto tIdx = MakeIntVec({});
 	auto qID = MakeIntVec({});
 	auto qIdx = MakeIntVec({});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 0u);
 }
 
@@ -25,7 +24,7 @@ TEST(SortSeeds, SingleRowUnchanged) {
 	auto tIdx = MakeIntVec({2});
 	auto qID = MakeIntVec({3});
 	auto qIdx = MakeIntVec({4});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 	ASSERT_EQ(tID.size(), 1u);
 	EXPECT_EQ(tID[0], 1);
 	EXPECT_EQ(tIdx[0], 2);
@@ -43,7 +42,7 @@ TEST(SortSeeds, OrdersByQueryThenTargetThenDiagonalThenQueryIndex) {
 	auto tIdx = MakeIntVec({10, 9, 3});
 	auto qID  = MakeIntVec({1,  0, 0});
 	auto qIdx = MakeIntVec({0,  5, 4});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  0); EXPECT_EQ(tID[1],  1); EXPECT_EQ(tID[2],  0);
 	EXPECT_EQ(tIdx[0], 9); EXPECT_EQ(tIdx[1], 3); EXPECT_EQ(tIdx[2], 10);
@@ -59,7 +58,7 @@ TEST(SortSeeds, TiebreaksByQueryID) {
 	auto tIdx = MakeIntVec({10, 10});
 	auto qID  = MakeIntVec({5,  2});
 	auto qIdx = MakeIntVec({3,  3});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  0); EXPECT_EQ(tID[1],  0);
 	EXPECT_EQ(tIdx[0], 10); EXPECT_EQ(tIdx[1], 10);
@@ -75,7 +74,7 @@ TEST(SortSeeds, TiebreaksByTargetIDWhenQueryIDEqual) {
 	auto tIdx = MakeIntVec({10, 10});
 	auto qID  = MakeIntVec({1,  1});
 	auto qIdx = MakeIntVec({4,  4});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  3); EXPECT_EQ(tID[1],  7);
 	EXPECT_EQ(tIdx[0], 10); EXPECT_EQ(tIdx[1], 10);
@@ -92,7 +91,7 @@ TEST(SortSeeds, TiebreaksByDiagonalWhenQueryAndTargetIDEqual) {
 	auto tIdx = MakeIntVec({20, 30});
 	auto qID  = MakeIntVec({0,  0});
 	auto qIdx = MakeIntVec({5,  20});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  0); EXPECT_EQ(tID[1],  0);
 	EXPECT_EQ(tIdx[0], 30); EXPECT_EQ(tIdx[1], 20);
@@ -109,7 +108,7 @@ TEST(SortSeeds, TiebreaksByQueryIndexWhenDiagonalEqual) {
 	auto tIdx = MakeIntVec({15, 12});
 	auto qID  = MakeIntVec({0,  0});
 	auto qIdx = MakeIntVec({5,  2});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  0); EXPECT_EQ(tID[1],  0);
 	EXPECT_EQ(tIdx[0], 12); EXPECT_EQ(tIdx[1], 15);
@@ -127,7 +126,7 @@ TEST(SortSeeds, ReversedInputGetsSorted) {
 	auto tIdx = MakeIntVec({10, 20, 15, 12});
 	auto qID  = MakeIntVec({1,  0,  0,  0});
 	auto qIdx = MakeIntVec({4,  5,  5,  2});
-	measureDistanceSorting(tID, tIdx, qID, qIdx);
+	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
 
 	EXPECT_EQ(tID[0],  0); EXPECT_EQ(tID[1],  0); EXPECT_EQ(tID[2],  0); EXPECT_EQ(tID[3],  1);
 	EXPECT_EQ(tIdx[0], 12); EXPECT_EQ(tIdx[1], 15); EXPECT_EQ(tIdx[2], 20); EXPECT_EQ(tIdx[3], 10);
