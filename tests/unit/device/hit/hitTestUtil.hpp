@@ -18,6 +18,15 @@ inline thrust::host_vector<int> MakeIntVec(std::initializer_list<int> xs) {
 	return v;
 }
 
+inline thrust::host_vector<double> MakeDoubleVec(std::initializer_list<double> xs) {
+	thrust::host_vector<double> v;
+	v.reserve(xs.size());
+	for (double x : xs) {
+		v.push_back(x);
+	}
+	return v;
+}
+
 
 }  // namespace hit
 }  // namespace test
