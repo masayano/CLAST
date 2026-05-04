@@ -1,0 +1,12 @@
+Ecoli_K12_sub	0	100	+	Ecoli_K12	74	100	99(99%)	96	2.16226e-52
+Ecoli_K12_del	0	99	+	Ecoli_K12	74	100	99(100%)	92	5.13425e-50
+Ecoli_K12_ins	0	101	+	Ecoli_K12	74	102	101(100%)	94	3.38218e-51
+Scerevisiae_chrI_sub	0	100	+	Scerevisiae_chrI	258	100	99(99%)	96	2.16226e-52
+Scerevisiae_chrI_del	0	99	+	Scerevisiae_chrI	258	100	99(100%)	92	5.13425e-50
+Scerevisiae_chrI_ins	0	101	+	Scerevisiae_chrI	258	100	100(99.0099%)	93	1.33101e-50
+Mjannaschii_sub	0	100	+	Mjannaschii	0	100	99(99%)	96	2.16226e-52
+Mjannaschii_del	0	99	+	Mjannaschii	0	100	99(100%)	92	5.13425e-50
+Mjannaschii_ins	0	101	+	Mjannaschii	0	100	100(99.0099%)	93	1.33101e-50
+Lambda_sub	0	100	+	Lambda	792	100	99(99%)	96	2.16226e-52
+Lambda_del	0	99	+	Lambda	792	100	99(100%)	92	5.13425e-50
+Lambda_ins	0	101	+	Lambda	792	100	100(99.0099%)	93	1.33101e-50
