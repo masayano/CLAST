@@ -1,9 +1,6 @@
-// Unit tests for host-side Thrust seed helpers: duplicate removal, isolate removal,
-// boundary filters, corner filter.
-// Inputs use `measureDistanceSorting` from `sortSeeds.cuh` when sort order matters.
+// Unit tests for clast::hit::onQueryBoundary, onTargetBoundary, onCorner
+// (src/device/hit/deleteSeedsOnSequenceBoundary.cuh).
 
-#include "device/hit/deleteDuplicateSeeds.cuh"
-#include "device/hit/deleteIsolateSeeds.cuh"
 #include "device/hit/deleteSeedsOnSequenceBoundary.cuh"
 #include "device/hit/sortSeeds.cuh"
 #include "hitTestUtil.hpp"
@@ -12,57 +9,8 @@
 
 using clast::test::hit::MakeIntVec;
 
-// `deleteDuplicateSeeds` only runs removal when size > 1. Zero rows stays empty; one row is untouched.
-TEST(SeedHostApiDeleteDuplicate, NoOpWhenZeroOrOneRow) {
-	const int W = 100;
-	const int G = 8;
-	auto tID = MakeIntVec({7});
-	auto tIdx = MakeIntVec({11});
-	auto qID = MakeIntVec({2});
-	auto qIdx = MakeIntVec({5});
-	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
-	ASSERT_EQ(tID.size(), 1u);
-	tID.clear();
-	tIdx.clear();
-	qID.clear();
-	qIdx.clear();
-	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
-	ASSERT_EQ(tID.size(), 0u);
-}
-
-// Two adjacent seeds in measure-distance order that fall within (W,G) “near pair” → second removed.
-// Rows (0,10,0,5) and (0,11,0,6): same qID/tID; indices differ by 1 on both axes → duplicate pair.
-TEST(SeedHostApiDeleteDuplicate, RemovesNearDuplicateOnSortedInput) {
-	const int W = 100;
-	const int G = 8;
-	auto tID = MakeIntVec({0, 0});
-	auto tIdx = MakeIntVec({10, 11});
-	auto qID = MakeIntVec({0, 0});
-	auto qIdx = MakeIntVec({5, 6});
-	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
-
-	clast::hit::deleteDuplicateSeeds(W, G, tID, tIdx, qID, qIdx);
-	ASSERT_EQ(tID.size(), 1u);
-}
-
-// `deleteSeedHasNotNearPair` drops rows that have no predecessor within (W,G).
-// Same tIdx but qID jumps 0→1: second row is not “near” first → isolate removed; first (qID=0) remains.
-TEST(SeedHostApiDeleteIsolate, RemovesRowNotNearPreviousInSortedOrder) {
-	const int W = 100;
-	const int G = 8;
-	auto tID = MakeIntVec({0, 0});
-	auto tIdx = MakeIntVec({10, 10});
-	auto qID = MakeIntVec({0, 1});
-	auto qIdx = MakeIntVec({5, 5});
-	clast::hit::measureDistanceSorting(tID, tIdx, qID, qIdx);
-
-	clast::hit::deleteSeedHasNotNearPair(W, G, tID, tIdx, qID, qIdx);
-	ASSERT_EQ(tID.size(), 1u);
-	EXPECT_EQ(qID[0], 0);
-}
-
 // Effective end position kMer + qIdx must not exceed qLen[qID]. Here 15+86 > 100 → seed dropped.
-TEST(SeedHostApiBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
+TEST(DeleteSeedsOnSequenceBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
 	const int kMer = 15;
 	const int q_begin = 0;
 	auto qLen = MakeIntVec({100});
@@ -75,7 +23,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRemovesSeedPastSequenceEnd) {
 }
 
 // Query boundary: removal uses strict `>` vs length. kMer+idx == qLen → still valid → row kept.
-TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsExactBoundary) {
+TEST(DeleteSeedsOnSequenceBoundary, OnQueryBoundaryKeepsExactBoundary) {
 	const int kMer = 15;
 	const int q_begin = 0;
 	auto qLen = MakeIntVec({100});
@@ -88,7 +36,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsExactBoundary) {
 }
 
 // Strict inequality: kMer+idx < qLen → interior hit → kept.
-TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsInteriorSeed) {
+TEST(DeleteSeedsOnSequenceBoundary, OnQueryBoundaryKeepsInteriorSeed) {
 	const int kMer = 15;
 	const int q_begin = 0;
 	auto qLen = MakeIntVec({100});
@@ -102,7 +50,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryKeepsInteriorSeed) {
 
 // `q_begin` only offsets into `qLengthArray`: effective length is `qLengthArray[qID - q_begin]`.
 // qID=10, q_begin=10 → length 1000; kMer+qIdx = 10+991 = 1001 > 1000 → removed.
-TEST(SeedHostApiBoundary, OnQueryBoundaryRespectsQBeginOffset) {
+TEST(DeleteSeedsOnSequenceBoundary, OnQueryBoundaryRespectsQBeginOffset) {
 	const int kMer = 10;
 	const int q_begin = 10;
 	auto qLen = MakeIntVec({1000});
@@ -115,7 +63,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRespectsQBeginOffset) {
 }
 
 // Multi-seed: first seed is interior, second is out-of-bounds → only first survives
-TEST(SeedHostApiBoundary, OnQueryBoundaryRetainsOnlyInBoundSeed) {
+TEST(DeleteSeedsOnSequenceBoundary, OnQueryBoundaryRetainsOnlyInBoundSeed) {
 	const int kMer = 15;
 	const int q_begin = 0;
 	auto qLen = MakeIntVec({100});
@@ -130,7 +78,7 @@ TEST(SeedHostApiBoundary, OnQueryBoundaryRetainsOnlyInBoundSeed) {
 }
 
 // Same rule on target: kMer + tIdx must not exceed tLen[tID]. Here 12+190 > 200 → removed.
-TEST(SeedHostApiBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
+TEST(DeleteSeedsOnSequenceBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
 	const int kMer = 12;
 	const int t_begin = 0;
 	auto tLen = MakeIntVec({200});
@@ -143,7 +91,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryRemovesSeedPastSequenceEnd) {
 }
 
 // Target boundary: same strict `>` rule as query — equality kMer+tIdx == tLen keeps the seed.
-TEST(SeedHostApiBoundary, OnTargetBoundaryKeepsExactBoundary) {
+TEST(DeleteSeedsOnSequenceBoundary, OnTargetBoundaryKeepsExactBoundary) {
 	const int kMer = 12;
 	const int t_begin = 0;
 	auto tLen = MakeIntVec({200});
@@ -156,7 +104,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryKeepsExactBoundary) {
 }
 
 // Multi-seed: one in-bounds, one out-of-bounds; verify correct one is retained
-TEST(SeedHostApiBoundary, OnTargetBoundaryRetainsOnlyInBoundSeed) {
+TEST(DeleteSeedsOnSequenceBoundary, OnTargetBoundaryRetainsOnlyInBoundSeed) {
 	const int kMer = 10;
 	const int t_begin = 0;
 	auto tLen = MakeIntVec({50});
@@ -172,7 +120,7 @@ TEST(SeedHostApiBoundary, OnTargetBoundaryRetainsOnlyInBoundSeed) {
 
 // Lower-left corner: tHitStartIdx + gap < 0
 // tHitStartIdx = tIdx - qIdx = 5 - 30 = -25; -25 + 8 = -17 < 0 → remove
-TEST(SeedHostApiBoundary, OnCornerRemovesLowerLeftCorner) {
+TEST(DeleteSeedsOnSequenceBoundary, OnCornerRemovesLowerLeftCorner) {
 	const int gap = 8;
 	const int t_begin = 0;
 	const int q_begin = 0;
@@ -188,7 +136,7 @@ TEST(SeedHostApiBoundary, OnCornerRemovesLowerLeftCorner) {
 
 // Upper-right corner: tHitStartIdx + qLength - gap > tLength
 // tHitStartIdx = tIdx - qIdx = 80 - 5 = 75; 75 + 50 - 8 = 117 > 100 → remove
-TEST(SeedHostApiBoundary, OnCornerRemovesUpperRightCorner) {
+TEST(DeleteSeedsOnSequenceBoundary, OnCornerRemovesUpperRightCorner) {
 	const int gap = 8;
 	const int t_begin = 0;
 	const int q_begin = 0;
@@ -204,7 +152,7 @@ TEST(SeedHostApiBoundary, OnCornerRemovesUpperRightCorner) {
 
 // Interior seed: neither corner condition triggered → kept
 // tHitStartIdx = 20 - 5 = 15; 15+8=23 >= 0; 15+50-8=57 <= 100
-TEST(SeedHostApiBoundary, OnCornerKeepsInteriorSeed) {
+TEST(DeleteSeedsOnSequenceBoundary, OnCornerKeepsInteriorSeed) {
 	const int gap = 8;
 	const int t_begin = 0;
 	const int q_begin = 0;

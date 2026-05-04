@@ -81,11 +81,15 @@ if(BUILD_TESTING)
 
   add_executable(clast_unit_tests
     tests/unit/device/hit/sortSeedsTest.cpp
-    tests/unit/device/hit/seedHostApiTest.cpp
+    tests/unit/device/hit/deleteDuplicateSeedsTest.cpp
+    tests/unit/device/hit/deleteIsolateSeedsTest.cpp
+    tests/unit/device/hit/deleteSeedsOnSequenceBoundaryTest.cpp
   )
   set_source_files_properties(
     tests/unit/device/hit/sortSeedsTest.cpp
-    tests/unit/device/hit/seedHostApiTest.cpp
+    tests/unit/device/hit/deleteDuplicateSeedsTest.cpp
+    tests/unit/device/hit/deleteIsolateSeedsTest.cpp
+    tests/unit/device/hit/deleteSeedsOnSequenceBoundaryTest.cpp
     PROPERTIES LANGUAGE CUDA
   )
   target_include_directories(clast_unit_tests PRIVATE
