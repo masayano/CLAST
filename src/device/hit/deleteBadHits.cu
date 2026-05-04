@@ -47,6 +47,16 @@ void removeLowEValueHitsImpl(
 	matchNumArray    = h_matchNumArray;
 	scoreArray       = h_scoreArray;
 	evalueArray      = h_evalueArray;
+	const int newSize = h_targetIDArray.size();
+	targetIDArray   .resize(newSize);
+	targetIndexArray.resize(newSize);
+	queryIDArray    .resize(newSize);
+	queryIndexArray .resize(newSize);
+	tHitLengthArray .resize(newSize);
+	qHitLengthArray .resize(newSize);
+	matchNumArray   .resize(newSize);
+	scoreArray      .resize(newSize);
+	evalueArray     .resize(newSize);
 }
 
 void deleteHits_lowEValue(
@@ -121,6 +131,16 @@ void removeTooShortHitsImpl(
 	matchNumArray    = h_matchNumArray;
 	scoreArray       = h_scoreArray;
 	evalueArray      = h_evalueArray;
+	const int newSize = h_targetIDArray.size();
+	targetIDArray   .resize(newSize);
+	targetIndexArray.resize(newSize);
+	queryIDArray    .resize(newSize);
+	queryIndexArray .resize(newSize);
+	tHitLengthArray .resize(newSize);
+	qHitLengthArray .resize(newSize);
+	matchNumArray   .resize(newSize);
+	scoreArray      .resize(newSize);
+	evalueArray     .resize(newSize);
 }
 
 void deleteHits_tooShort(
