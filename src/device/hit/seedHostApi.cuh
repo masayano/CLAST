@@ -1,7 +1,9 @@
 #ifndef C_DEVICE_HIT_LIST_SEED_HOST_API_CUH_
 #define C_DEVICE_HIT_LIST_SEED_HOST_API_CUH_
 
-#include "device/hit/seedThrustVectorOps.cuh"
+#include "device/hit/deleteDuplicateSeeds.cuh"
+#include "device/hit/deleteIsolateSeeds.cuh"
+#include "device/hit/deleteSeedsOnSequenceBoundary.cuh"
 
 #include <thrust/host_vector.h>
 
