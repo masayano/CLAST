@@ -38,3 +38,41 @@ TEST(CompSeq, ShortSequence) {
 TEST(CompSeq, ForwardStrandExample) {
 	EXPECT_EQ(compSeq("ATGC"), "GCAT");
 }
+
+// Lowercase letters are not ACGT uppercase → compBase returns 'N' for all of them.
+TEST(CompBase, LowercaseReturnsN) {
+	EXPECT_EQ(compBase('a'), 'N');
+	EXPECT_EQ(compBase('t'), 'N');
+	EXPECT_EQ(compBase('g'), 'N');
+	EXPECT_EQ(compBase('c'), 'N');
+}
+
+// Other non-ACGT characters (uppercase and symbols) also return 'N'.
+TEST(CompBase, OtherNonACGTReturnsN) {
+	EXPECT_EQ(compBase('U'), 'N');
+	EXPECT_EQ(compBase('B'), 'N');
+	EXPECT_EQ(compBase('1'), 'N');
+	EXPECT_EQ(compBase('-'), 'N');
+}
+
+// compSeq on a longer sequence: reverse-complement is applied correctly.
+// "AATGCC" → reverse: "CCGTAA" → complement each: "GGCATT"
+TEST(CompSeq, LongSequence) {
+	EXPECT_EQ(compSeq("AATGCC"), "GGCATT");
+}
+
+// Lowercase in a sequence: each base becomes 'N', then reversed.
+TEST(CompSeq, LowercaseBecomesAllN) {
+	EXPECT_EQ(compSeq("atgc"), "NNNN");
+}
+
+// Sequence already containing only N stays all-N after reverse-complement.
+TEST(CompSeq, AllNSequenceStaysAllN) {
+	EXPECT_EQ(compSeq("NNN"), "NNN");
+}
+
+// Mixed uppercase ACGT and unknown: unknowns become 'N', ACGT complement normally.
+// "ANTG" → reverse: "GTNA" → complement: "CANT"
+TEST(CompSeq, MixedKnownAndUnknown) {
+	EXPECT_EQ(compSeq("ANTG"), "CANT");
+}
