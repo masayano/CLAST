@@ -14,6 +14,51 @@
 
 namespace clast::result {
 
+struct PrevRow {
+	std::string queryLabel;
+	int         queryIndex  = {};
+	char        queryStrand = {};
+	std::string targetLabel;
+	int         targetIndex = {};
+	int         tHitLength  = {};
+	int         qHitLength  = {};
+	int         matchNum    = {};
+	int         score       = {};
+	double      eValue      = {};
+
+	bool matches(
+			const std::string& qLabel, int qIdx, char qStrand,
+			const std::string& tLabel, int tIdx,
+			int tLen, int qLen, int mNum, int sc, double ev) const {
+		return queryLabel  == qLabel  &&
+		       queryIndex  == qIdx   &&
+		       queryStrand == qStrand &&
+		       targetLabel == tLabel  &&
+		       targetIndex == tIdx   &&
+		       tHitLength  == tLen   &&
+		       qHitLength  == qLen   &&
+		       matchNum    == mNum   &&
+		       score       == sc     &&
+		       eValue      == ev;
+	}
+
+	void set(
+			const std::string& qLabel, int qIdx, char qStrand,
+			const std::string& tLabel, int tIdx,
+			int tLen, int qLen, int mNum, int sc, double ev) {
+		queryLabel  = qLabel;
+		queryIndex  = qIdx;
+		queryStrand = qStrand;
+		targetLabel = tLabel;
+		targetIndex = tIdx;
+		tHitLength  = tLen;
+		qHitLength  = qLen;
+		matchNum    = mNum;
+		score       = sc;
+		eValue      = ev;
+	}
+};
+
 inline void printResultToFile(
 		int numberOfOutput,
 		const std::string& outputFile,
@@ -36,57 +81,29 @@ inline void printResultToFile(
 	std::ofstream ofs;
 	ofs.open(filename.str().c_str(), std::ios::app);
 
-	std::string preQueryLabel;
-	int         preQueryIndex;
-	char        preQueryStrand;
-	std::string preTargetLabel;
-	int         preTargetIndex;
-	int         preTHitLength;
-	int         preQHitLength;
-	int         preMatchNum;
-	int         preScore;
-	double      preEValue;
-
-	int          queryIndex;
-	char         queryStrand;
-	int          targetIndex;
-	int          tHitLength;
-	int          qHitLength;
-	int          matchNum;
-	int          score;
-	double       eValue;
-
+	PrevRow prev;
 	int count = 0;
 	int printedHitsCounter = 0;
 	for(int i = 0; i < queryIDArray.size(); ++i) {
 		const std::string& queryLabel = queryLabelArray[queryIDArray[i]];
-		if(preQueryLabel != queryLabel) { count = 0; }
+		if(prev.queryLabel != queryLabel) { count = 0; }
 		if(
-			(numberOfOutput == -1) ||        // unlimited.
-			(preQueryLabel != queryLabel) || // top hit.
-			(count < numberOfOutput)         // other hit.
+			(numberOfOutput == -1) ||          // unlimited.
+			(prev.queryLabel != queryLabel) || // top hit.
+			(count < numberOfOutput)           // other hit.
 		) {
 			const std::string& targetLabel = targetLabelArray[targetIDArray[i]];
-			queryIndex  = queryIndexArray[i];
-			queryStrand = queryStrandArray[queryIDArray[i]];
-			targetIndex = targetIndexArray[i] + targetStartIdxArray[targetIDArray[i]];
-			tHitLength  = tHitLengthArray[i];
-			qHitLength  = qHitLengthArray[i];
-			matchNum    = matchNumArray[i];
-			score       = scoreArray[i];
-			eValue      = evalueArray[i];
-			if(
-				(preQueryLabel  != queryLabel ) ||
-				(preQueryIndex  != queryIndex ) ||
-				(preQueryStrand != queryStrand) ||
-				(preTargetLabel != targetLabel) ||
-				(preTargetIndex != targetIndex) ||
-				(preTHitLength  != tHitLength ) ||
-				(preQHitLength  != qHitLength ) ||
-				(preMatchNum    != matchNum   ) ||
-				(preScore       != score      ) ||
-				(preEValue      != eValue     )
-			) {
+			const int    queryIndex  = queryIndexArray[i];
+			const char   queryStrand = queryStrandArray[queryIDArray[i]];
+			const int    targetIndex = targetIndexArray[i] + targetStartIdxArray[targetIDArray[i]];
+			const int    tHitLength  = tHitLengthArray[i];
+			const int    qHitLength  = qHitLengthArray[i];
+			const int    matchNum    = matchNumArray[i];
+			const int    score       = scoreArray[i];
+			const double eValue      = evalueArray[i];
+			if(!prev.matches(queryLabel, queryIndex, queryStrand,
+			                 targetLabel, targetIndex,
+			                 tHitLength, qHitLength, matchNum, score, eValue)) {
 				ofs	<< queryLabel
 					<< "\t"
 					<< queryIndex
@@ -109,16 +126,9 @@ inline void printResultToFile(
 					<< std::endl;
 				++count;
 				++printedHitsCounter;
-				preQueryLabel  = queryLabel;
-				preQueryIndex  = queryIndex;
-				preQueryStrand = queryStrand;
-				preTargetLabel = targetLabel;
-				preTargetIndex = targetIndex;
-				preTHitLength  = tHitLength;
-				preQHitLength  = qHitLength;
-				preMatchNum    = matchNum;
-				preScore       = score;
-				preEValue      = eValue;
+				prev.set(queryLabel, queryIndex, queryStrand,
+				         targetLabel, targetIndex,
+				         tHitLength, qHitLength, matchNum, score, eValue);
 			}
 		}
 	}
