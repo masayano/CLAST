@@ -38,6 +38,29 @@ struct Row {
 		       score       == other.score       &&
 		       eValue      == other.eValue;
 	}
+
+	void print(std::ostream& os) const {
+		os	<< queryLabel
+			<< "\t"
+			<< queryIndex
+			<< "\t"
+			<< qHitLength
+			<< "\t"
+			<< queryStrand
+			<< "\t"
+			<< targetLabel
+			<< "\t"
+			<< targetIndex
+			<< "\t"
+			<< tHitLength
+			<< "\t"
+			<< matchNum << "(" << static_cast<double>(matchNum*100)/qHitLength << "%)"
+			<< "\t"
+			<< score
+			<< "\t"
+			<< eValue
+			<< std::endl;
+	}
 };
 
 inline void printResultToFile(
@@ -85,26 +108,7 @@ inline void printResultToFile(
 			(count < numberOfOutput)                   // other hit.
 		) {
 			if(!prev.matches(current)) {
-				ofs	<< current.queryLabel
-					<< "\t"
-					<< current.queryIndex
-					<< "\t"
-					<< current.qHitLength
-					<< "\t"
-					<< current.queryStrand
-					<< "\t"
-					<< current.targetLabel
-					<< "\t"
-					<< current.targetIndex
-					<< "\t"
-					<< current.tHitLength
-					<< "\t"
-					<< current.matchNum << "(" << static_cast<double>(current.matchNum*100)/current.qHitLength << "%)"
-					<< "\t"
-					<< current.score
-					<< "\t"
-					<< current.eValue
-					<< std::endl;
+				current.print(ofs);
 				++count;
 				++printedHitsCounter;
 				prev = current;
