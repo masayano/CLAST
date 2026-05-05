@@ -6,6 +6,11 @@
 #include "device/seq/query.cuh"
 
 #include <thrust/device_vector.h>
+#include <thrust/iterator/permutation_iterator.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/sort.h>
+#include <thrust/transform.h>
+#include <thrust/tuple.h>
 
 void alignmentHits(
 		const CHostSetting& s,
@@ -22,6 +27,9 @@ void alignmentHits(
 		thrust::device_vector<int>& matchNumArray,
 		thrust::device_vector<int>& scoreArray);
 
+namespace clast::hit {
+
+// Computes backward alignment space: queryLength - (queryIndex + qHitLength).
 struct make_alignmentSizeBackward {
 	template <class Tuple>
 	__host__ __device__ int operator() (const Tuple& tuple) const {
@@ -35,6 +43,7 @@ struct make_alignmentSizeBackward {
 	}
 };
 
+// Descending comparator on alignmentSize (element 8 of the sort tuple).
 struct alignLengthBackward {
 	template <class Tuple1, class Tuple2>
 	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
@@ -44,6 +53,7 @@ struct alignLengthBackward {
 	}
 };
 
+// Descending comparator on queryIndex (element 3 of the sort tuple).
 struct alignLengthForward {
 	template <class Tuple1, class Tuple2>
 	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
@@ -52,5 +62,104 @@ struct alignLengthForward {
 		return qIdx_1 > qIdx_2;
 	}
 };
+
+// Sorts seed rows in descending order of backward alignment space
+// (queryLength[queryID] - (queryIndex + qHitLength)), so that the kernel
+// can process rows with the largest backward extension first.
+// Precondition: every queryIDArray[i] - q_begin is a valid index into qLengthArray.
+template <class ThrustVectorInt>
+void sortBeforeAlignBackWard(
+		const int q_begin,
+		const ThrustVectorInt& qLengthArray,
+		ThrustVectorInt& targetIDArray,
+		ThrustVectorInt& queryIDArray,
+		ThrustVectorInt& targetIndexArray,
+		ThrustVectorInt& queryIndexArray,
+		ThrustVectorInt& tHitLengthArray,
+		ThrustVectorInt& qHitLengthArray,
+		ThrustVectorInt& matchNumArray,
+		ThrustVectorInt& scoreArray) {
+	using namespace thrust;
+	ThrustVectorInt alignmentSize(targetIDArray.size());
+	transform(
+		make_zip_iterator(make_tuple(
+			make_permutation_iterator(qLengthArray.begin() - q_begin, queryIDArray.begin()),
+			queryIndexArray .begin(),
+			qHitLengthArray .begin()
+		)),
+		make_zip_iterator(make_tuple(
+			make_permutation_iterator(qLengthArray.begin() - q_begin, queryIDArray.end()),
+			queryIndexArray .end(),
+			qHitLengthArray .end()
+		)),
+		alignmentSize.begin(),
+		make_alignmentSizeBackward()
+	);
+	sort(
+		make_zip_iterator(make_tuple(
+			targetIDArray   .begin(),
+			queryIDArray    .begin(),
+			targetIndexArray.begin(),
+			queryIndexArray .begin(),
+			tHitLengthArray .begin(),
+			qHitLengthArray .begin(),
+			matchNumArray   .begin(),
+			scoreArray      .begin(),
+			alignmentSize   .begin()
+		)),
+		make_zip_iterator(make_tuple(
+			targetIDArray   .end(),
+			queryIDArray    .end(),
+			targetIndexArray.end(),
+			queryIndexArray .end(),
+			tHitLengthArray .end(),
+			qHitLengthArray .end(),
+			matchNumArray   .end(),
+			scoreArray      .end(),
+			alignmentSize   .end()
+		)),
+		alignLengthBackward()
+	);
+}
+
+// Sorts seed rows in descending order of queryIndex, so that the forward
+// alignment kernel processes rows with the largest query start position first.
+template <class ThrustVectorInt>
+void sortBeforeAlignForward(
+		ThrustVectorInt& targetIDArray,
+		ThrustVectorInt& queryIDArray,
+		ThrustVectorInt& targetIndexArray,
+		ThrustVectorInt& queryIndexArray,
+		ThrustVectorInt& tHitLengthArray,
+		ThrustVectorInt& qHitLengthArray,
+		ThrustVectorInt& matchNumArray,
+		ThrustVectorInt& scoreArray) {
+	using namespace thrust;
+	sort(
+		make_zip_iterator(make_tuple(
+			targetIDArray   .begin(),
+			queryIDArray    .begin(),
+			targetIndexArray.begin(),
+			queryIndexArray .begin(),
+			tHitLengthArray .begin(),
+			qHitLengthArray .begin(),
+			matchNumArray   .begin(),
+			scoreArray      .begin()
+		)),
+		make_zip_iterator(make_tuple(
+			targetIDArray   .end(),
+			queryIDArray    .end(),
+			targetIndexArray.end(),
+			queryIndexArray .end(),
+			tHitLengthArray .end(),
+			qHitLengthArray .end(),
+			matchNumArray   .end(),
+			scoreArray      .end()
+		)),
+		alignLengthForward()
+	);
+}
+
+} // namespace clast::hit
 
 #endif

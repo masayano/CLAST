@@ -26,91 +26,6 @@
 
 /*************************************** private **************************************/
 
-#include <thrust/iterator/constant_iterator.h>
-#include <thrust/iterator/permutation_iterator.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/remove.h>
-
-void removeDuplicateResultHits(
-		thrust::device_vector<int>& targetIDArray,
-		thrust::device_vector<int>& targetIndexArray,
-		thrust::device_vector<int>& queryIDArray,
-		thrust::device_vector<int>& queryIndexArray,
-		thrust::device_vector<int>& tHitLengthArray,
-		thrust::device_vector<int>& qHitLengthArray,
-		thrust::device_vector<int>& matchNumArray,
-		thrust::device_vector<int>& scoreArray,
-		thrust::device_vector<double>& evalueArray) {
-	using namespace thrust;
-	if (targetIDArray.size() > 1) {
-		/* do remove */
-		const int new_size = remove_if(
-				make_zip_iterator(
-						make_tuple(
-								targetIDArray   .begin() + 1,
-								targetIndexArray.begin() + 1,
-								queryIDArray    .begin() + 1,
-								queryIndexArray .begin() + 1,
-								tHitLengthArray .begin() + 1,
-								qHitLengthArray .begin() + 1,
-								matchNumArray   .begin() + 1,
-								scoreArray      .begin() + 1,
-								evalueArray     .begin() + 1
-						)
-				),
-				make_zip_iterator(
-						make_tuple(
-								targetIDArray   .end(),
-								targetIndexArray.end(),
-								queryIDArray    .end(),
-								queryIndexArray .end(),
-								tHitLengthArray .end(),
-								qHitLengthArray .end(),
-								matchNumArray   .end(),
-								scoreArray      .end(),
-								evalueArray     .end()
-						)
-				),
-				make_zip_iterator(
-						make_tuple(
-								targetIDArray   .begin() + 1,
-								targetIndexArray.begin() + 1,
-								queryIDArray    .begin() + 1,
-								queryIndexArray .begin() + 1,
-								targetIDArray   .begin(),
-								targetIndexArray.begin(),
-								queryIDArray    .begin(),
-								queryIndexArray .begin()
-						)
-				),
-				is_duplicate()
-		) - make_zip_iterator(
-				make_tuple(
-						targetIDArray   .begin(),
-						targetIndexArray.begin(),
-						queryIDArray    .begin(),
-						queryIndexArray .begin(),
-						tHitLengthArray .begin(),
-						qHitLengthArray .begin(),
-						matchNumArray   .begin(),
-						scoreArray      .begin(),
-						evalueArray     .begin()
-				)
-		);
-
-		/* resize */
-		targetIDArray   .resize(new_size);
-		targetIndexArray.resize(new_size);
-		queryIDArray    .resize(new_size);
-		queryIndexArray .resize(new_size);
-		tHitLengthArray .resize(new_size);
-		qHitLengthArray .resize(new_size);
-		matchNumArray   .resize(new_size);
-		scoreArray      .resize(new_size);
-		evalueArray     .resize(new_size);
-	}
-}
-
 void deleteHits_duplicateResult(
 		thrust::device_vector<int>& targetIDArray,
 		thrust::device_vector<int>& targetIndexArray,
@@ -124,7 +39,7 @@ void deleteHits_duplicateResult(
 	time_attack::runLabeledWithSuffix(
 			"  ...deleting duplicate hits", "...............................finished.",
 			[&] {
-				removeDuplicateResultHits(
+				clast::hit::removeDuplicateResultHits(
 						targetIDArray,
 						targetIndexArray,
 						queryIDArray,

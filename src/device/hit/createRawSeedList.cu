@@ -16,16 +16,6 @@
 #include <thrust/scan.h>
 #include <thrust/sort.h>
 
-struct modifyGatewayKeyArray {
-	__device__ int operator() (const int gatewayKey, const bool flg) const {
-		if(flg) {
-			return gatewayKey;
-		} else {
-			return -1;
-		}
-	}
-};
-
 void writeGatewayKey(
 		const thrust::device_vector<long>& hashGatewayKeyArray,
 		const thrust::device_vector<long>& qHashIndexArray,
@@ -58,80 +48,6 @@ void writeGatewayKey(
 	}
 }
 
-struct fillGatewayIndexArray {
-	__device__ int operator() (const int gatewayIndex, const int key) const {
-		if(key == -1) {
-			return 0;
-		} else {
-			return gatewayIndex;
-		}
-	}
-};
-
-void writeGatewayIndexArray(
-		const thrust::device_vector<int>& hashGatewayIndexArray,
-		const thrust::device_vector<int>& gatewayKeyArray,
-		thrust::device_vector<int>& gatewayIndexArray) {
-	try {
-		using namespace thrust;
-
-		thrust::transform(
-				make_permutation_iterator(
-						hashGatewayIndexArray.begin(),
-						gatewayKeyArray      .begin()
-				),
-				make_permutation_iterator(
-						hashGatewayIndexArray.begin(),
-						gatewayKeyArray      .end()
-				),
-				gatewayKeyArray.begin(),
-				gatewayIndexArray.begin(),
-				fillGatewayIndexArray()
-		);
-	} catch(thrust::system::system_error) {
-		throw;
-	} catch(std::bad_alloc) {
-		throw;
-	}
-}
-
-struct fillCellSizeArray {
-	__device__ int operator() (const int cellSize, const int key) const {
-		if(key == -1) {
-			return 0;
-		} else {
-			return cellSize;
-		}
-	}
-};
-
-void writeCellSizeArray(
-		const thrust::device_vector<int>& hashCellSizeArray,
-		const thrust::device_vector<int>& gatewayKeyArray,
-		thrust::device_vector<int>& cellSizeArray) {
-	try {
-		using namespace thrust;
-
-		thrust::transform(
-				make_permutation_iterator(
-						hashCellSizeArray.begin(),
-						gatewayKeyArray  .begin()
-				),
-				make_permutation_iterator(
-						hashCellSizeArray.begin(),
-						gatewayKeyArray  .end()
-				),
-				gatewayKeyArray.begin(),
-				cellSizeArray.begin(),
-				fillCellSizeArray()
-		);
-	} catch(thrust::system::system_error) {
-		throw;
-	} catch(std::bad_alloc) {
-		throw;
-	}
-}
-
 void buildRawSeedList(
 		const CDeviceHashTable& h,
 		const CDeviceSeqList_query& q,
@@ -150,13 +66,13 @@ void buildRawSeedList(
 			gatewayKeyArray);
 
 	device_vector<int> gatewayIndexArray(qHashIndexArray.size());
-	writeGatewayIndexArray(
+	clast::hit::writeGatewayIndexValues(
 			h.getGatewayIndex(),
 			gatewayKeyArray,
 			gatewayIndexArray);
 
 	device_vector<int> cellSizeArray(qHashIndexArray.size());
-	writeCellSizeArray(
+	clast::hit::writeCellSizeValues(
 			h.getCellSizeArray(),
 			gatewayKeyArray,
 			cellSizeArray);

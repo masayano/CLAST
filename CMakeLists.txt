@@ -85,6 +85,9 @@ if(BUILD_TESTING)
     tests/unit/device/hit/deleteIsolateSeedsTest.cpp
     tests/unit/device/hit/deleteSeedsOnSequenceBoundaryTest.cpp
     tests/unit/device/hit/deleteBadHitsTest.cpp
+    tests/unit/device/hit/createRawSeedListTest.cpp
+    tests/unit/device/hit/removeDuplicateResultHitsTest.cpp
+    tests/unit/device/hit/alignmentHitsTest.cpp
   )
   set_source_files_properties(
     tests/unit/device/hit/sortSeedsTest.cpp
@@ -92,6 +95,9 @@ if(BUILD_TESTING)
     tests/unit/device/hit/deleteIsolateSeedsTest.cpp
     tests/unit/device/hit/deleteSeedsOnSequenceBoundaryTest.cpp
     tests/unit/device/hit/deleteBadHitsTest.cpp
+    tests/unit/device/hit/createRawSeedListTest.cpp
+    tests/unit/device/hit/removeDuplicateResultHitsTest.cpp
+    tests/unit/device/hit/alignmentHitsTest.cpp
     PROPERTIES LANGUAGE CUDA
   )
   target_include_directories(clast_unit_tests PRIVATE

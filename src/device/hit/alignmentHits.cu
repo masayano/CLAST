@@ -7,117 +7,6 @@
 #include "test_support/CTest.cuh"
 
 /******************************* private ************************************/
-#include <thrust/sort.h>
-
-void sortBeforeAlignBackWard(
-		const int q_begin,
-		const thrust::device_vector<int>& qLengthArray,
-		thrust::device_vector<int>& targetIDArray,
-		thrust::device_vector<int>& queryIDArray,
-		thrust::device_vector<int>& targetIndexArray,
-		thrust::device_vector<int>& queryIndexArray,
-		thrust::device_vector<int>& tHitLengthArray,
-		thrust::device_vector<int>& qHitLengthArray,
-		thrust::device_vector<int>& matchNumArray,
-		thrust::device_vector<int>& scoreArray) {
-	using namespace thrust;
-
-	device_vector<int> alignmentSize(targetIDArray.size());
-	thrust::transform(
-			make_zip_iterator(
-					make_tuple(
-							make_permutation_iterator(
-									qLengthArray.begin() - q_begin,
-									queryIDArray.begin()
-							),
-							queryIndexArray.begin(),
-							qHitLengthArray.begin()
-					)
-			),
-			make_zip_iterator(
-					make_tuple(
-							make_permutation_iterator(
-									qLengthArray.begin() - q_begin,
-									queryIDArray.end()
-							),
-							queryIndexArray.end(),
-							qHitLengthArray.end()
-					)
-			),
-			alignmentSize.begin(),
-			make_alignmentSizeBackward()
-	);
-
-	sort(
-			make_zip_iterator(
-					make_tuple(
-							targetIDArray   .begin(),
-							queryIDArray    .begin(),
-							targetIndexArray.begin(),
-							queryIndexArray .begin(),
-							tHitLengthArray .begin(),
-							qHitLengthArray .begin(),
-							matchNumArray   .begin(),
-							scoreArray      .begin(),
-							alignmentSize   .begin()
-					)
-			),
-			make_zip_iterator(
-					make_tuple(
-							targetIDArray   .end(),
-							queryIDArray    .end(),
-							targetIndexArray.end(),
-							queryIndexArray .end(),
-							tHitLengthArray .end(),
-							qHitLengthArray .end(),
-							matchNumArray   .end(),
-							scoreArray      .end(),
-							alignmentSize   .end()
-					)
-			),
-			alignLengthBackward()
-	);
-}
-
-void sortBeforeAlignForward(
-		thrust::device_vector<int>& targetIDArray,
-		thrust::device_vector<int>& queryIDArray,
-		thrust::device_vector<int>& targetIndexArray,
-		thrust::device_vector<int>& queryIndexArray,
-		thrust::device_vector<int>& tHitLengthArray,
-		thrust::device_vector<int>& qHitLengthArray,
-		thrust::device_vector<int>& matchNumArray,
-		thrust::device_vector<int>& scoreArray) {
-	using namespace thrust;
-
-	sort(
-			make_zip_iterator(
-					make_tuple(
-							targetIDArray   .begin(),
-							queryIDArray    .begin(),
-							targetIndexArray.begin(),
-							queryIndexArray .begin(),
-							tHitLengthArray .begin(),
-							qHitLengthArray .begin(),
-							matchNumArray   .begin(),
-							scoreArray      .begin()
-					)
-			),
-			make_zip_iterator(
-					make_tuple(
-							targetIDArray   .end(),
-							queryIDArray    .end(),
-							targetIndexArray.end(),
-							queryIndexArray .end(),
-							tHitLengthArray .end(),
-							qHitLengthArray .end(),
-							matchNumArray   .end(),
-							scoreArray      .end()
-					)
-			),
-			alignLengthForward()
-	);
-}
 
 void localAlignmentKernels(
 		const int q_begin,
@@ -143,7 +32,7 @@ void localAlignmentKernels(
 		thrust::device_vector<int>& tempNodeArray_horizontal,
 		thrust::device_vector<int>& tempNodeArray_matchNum) {
 	using namespace thrust;
-	sortBeforeAlignBackWard(
+	clast::hit::sortBeforeAlignBackWard(
 			q_begin,
 			q.getLengthArray(),
 			targetIDArray,
@@ -186,7 +75,7 @@ void localAlignmentKernels(
 			raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
 			raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
 	);
-	sortBeforeAlignForward(
+	clast::hit::sortBeforeAlignForward(
 			targetIDArray,
 			queryIDArray,
 			targetIndexArray,
@@ -253,7 +142,7 @@ void globalAlignmentKernels(
 		thrust::device_vector<int>& tempNodeArray_horizontal,
 		thrust::device_vector<int>& tempNodeArray_matchNum) {
 	using namespace thrust;
-	sortBeforeAlignBackWard(
+	clast::hit::sortBeforeAlignBackWard(
 			q_begin,
 			q.getLengthArray(),
 			targetIDArray,
@@ -296,7 +185,7 @@ void globalAlignmentKernels(
 			raw_pointer_cast( &*tempNodeArray_horizontal.begin() ),
 			raw_pointer_cast( &*tempNodeArray_matchNum  .begin() )
 	);
-	sortBeforeAlignForward(
+	clast::hit::sortBeforeAlignForward(
 			targetIDArray,
 			queryIDArray,
 			targetIndexArray,
