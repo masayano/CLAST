@@ -27,6 +27,15 @@ inline thrust::host_vector<double> MakeDoubleVec(std::initializer_list<double> x
 	return v;
 }
 
+inline thrust::host_vector<long> MakeLongVec(std::initializer_list<long> xs) {
+	thrust::host_vector<long> v;
+	v.reserve(xs.size());
+	for (long x : xs) {
+		v.push_back(x);
+	}
+	return v;
+}
+
 
 }  // namespace hit
 }  // namespace test

@@ -4,7 +4,7 @@
 #include <thrust/tuple.h>
 
 struct repel_hasOddBase {
-	__device__ long operator() (long index, char flg) {
+	__host__ __device__ long operator() (long index, char flg) {
 		if(flg == 0) {
 			return index;
 		} else {

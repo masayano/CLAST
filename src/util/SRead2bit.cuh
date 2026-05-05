@@ -5,7 +5,7 @@
 
 struct read2bit {
 	template <typename Tuple>
-	__device__ Tuple operator() (const char chr, Tuple tuple) {
+	__host__ __device__ thrust::tuple<long, char> operator() (const char chr, Tuple tuple) {
 		long input = thrust::get<0>(tuple);
 		char flg   = thrust::get<1>(tuple);
 		input <<= 2;
@@ -16,7 +16,7 @@ struct read2bit {
 			case 'T': input += 3; break;
 			default : flg = 1;
 		}
-		return thrust::tie(input, flg);
+		return thrust::make_tuple(input, flg);
 	}
 };
 
