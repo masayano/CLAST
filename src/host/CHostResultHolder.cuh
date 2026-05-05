@@ -63,6 +63,16 @@ struct Row {
 	}
 };
 
+inline bool withinOutputLimit(
+		int numberOfOutput,
+		const std::string& prevQueryLabel,
+		const std::string& currentQueryLabel,
+		int count) {
+	return (numberOfOutput == -1) ||                    // unlimited.
+	       (prevQueryLabel != currentQueryLabel) ||      // top hit.
+	       (count < numberOfOutput);                     // other hit.
+}
+
 inline void printResultToFile(
 		int numberOfOutput,
 		const std::string& outputFile,
@@ -102,11 +112,7 @@ inline void printResultToFile(
 			evalueArray     [i]
 		};
 		if(prev.queryLabel != current.queryLabel) { count = 0; }
-		if(
-			(numberOfOutput == -1) ||                 // unlimited.
-			(prev.queryLabel != current.queryLabel) || // top hit.
-			(count < numberOfOutput)                   // other hit.
-		) {
+		if(withinOutputLimit(numberOfOutput, prev.queryLabel, current.queryLabel, count)) {
 			if(!prev.matches(current)) {
 				current.print(ofs);
 				++count;

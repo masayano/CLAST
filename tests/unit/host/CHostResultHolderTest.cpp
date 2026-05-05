@@ -1,6 +1,5 @@
-// Unit tests for `clast::result::printResultToFile` in
-// `src/host/CHostResultHolder.cuh`:
-// TSV output logic — numberOfOutput limit, deduplication, field formatting.
+// Unit tests for `clast::result::withinOutputLimit` and
+// `clast::result::printResultToFile` in `src/host/CHostResultHolder.cuh`.
 
 #include "host/CHostResultHolder.cuh"
 
@@ -12,6 +11,34 @@
 #include <vector>
 
 using namespace clast::result;
+
+// ─── withinOutputLimit ───────────────────────────────────────────────────────
+
+// numberOfOutput == -1: always true regardless of count or query label.
+TEST(WithinOutputLimitTest, Unlimited_AlwaysTrue) {
+	EXPECT_TRUE(withinOutputLimit(-1, "A", "A", 100));
+	EXPECT_TRUE(withinOutputLimit(-1, "A", "B", 100));
+}
+
+// Different query labels: first hit of a new query is always written.
+TEST(WithinOutputLimitTest, NewQuery_AlwaysTrue) {
+	EXPECT_TRUE(withinOutputLimit(1, "A", "B", 5));
+}
+
+// Same query, count is still under the limit.
+TEST(WithinOutputLimitTest, SameQuery_CountUnderLimit_True) {
+	EXPECT_TRUE(withinOutputLimit(3, "A", "A", 2));
+}
+
+// Same query, count exactly equals the limit → no more hits allowed.
+TEST(WithinOutputLimitTest, SameQuery_CountAtLimit_False) {
+	EXPECT_FALSE(withinOutputLimit(3, "A", "A", 3));
+}
+
+// Same query, count exceeds the limit.
+TEST(WithinOutputLimitTest, SameQuery_CountOverLimit_False) {
+	EXPECT_FALSE(withinOutputLimit(1, "A", "A", 5));
+}
 
 // ─── fixture ─────────────────────────────────────────────────────────────────
 
