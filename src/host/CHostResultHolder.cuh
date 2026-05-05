@@ -68,9 +68,9 @@ inline bool withinOutputLimit(
 		const std::string& prevQueryLabel,
 		const std::string& currentQueryLabel,
 		int count) {
-	return (numberOfOutput == -1) ||                    // unlimited.
-	       (prevQueryLabel != currentQueryLabel) ||      // top hit.
-	       (count < numberOfOutput);                     // other hit.
+	if(numberOfOutput == -1)                  return true; // unlimited.
+	if(prevQueryLabel != currentQueryLabel)   return true; // top hit.
+	return count < numberOfOutput;                         // other hit.
 }
 
 inline void printResultToFile(
@@ -112,14 +112,12 @@ inline void printResultToFile(
 			evalueArray     [i]
 		};
 		if(prev.queryLabel != current.queryLabel) { count = 0; }
-		if(withinOutputLimit(numberOfOutput, prev.queryLabel, current.queryLabel, count)) {
-			if(!prev.matches(current)) {
-				current.print(ofs);
-				++count;
-				++printedHitsCounter;
-				prev = current;
-			}
-		}
+		if(!withinOutputLimit(numberOfOutput, prev.queryLabel, current.queryLabel, count)) continue;
+		if(prev.matches(current)) continue;
+		current.print(ofs);
+		++count;
+		++printedHitsCounter;
+		prev = current;
 	}
 	std::cout << " " << printedHitsCounter << " hits has printed." << std::endl;
 }
