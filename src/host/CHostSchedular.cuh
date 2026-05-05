@@ -18,4 +18,36 @@ public:
 	void search(CHostResultHolder& holder);
 };
 
+
+namespace clast::schedular {
+
+template <class SeqList>
+void moveQueryWindow(
+		const SeqList& queryList,
+		const int queryVRAMSize,
+		const int qEndID,
+		const int q_begin,
+		int& q_end) {
+	// these magic number 2 = number of query strand types ('+', '-')
+	const int q_beginIdx = queryList.getGatewayIdx(q_begin*2);
+	while((q_end < qEndID) && (queryList.getGatewayIdx(q_end*2+2) - q_beginIdx < queryVRAMSize)) {
+		++q_end;
+	}
+}
+
+template <class SeqList>
+void moveTargetWindow(
+		const SeqList& targetList,
+		const int targetVRAMSize,
+		const int tEndID,
+		const int t_begin,
+		int& t_end) {
+	const int t_beginIdx = targetList.getGatewayIdx(t_begin);
+	while((t_end < tEndID) && (targetList.getGatewayIdx(t_end+1) - t_beginIdx < targetVRAMSize)) {
+		++t_end;
+	}
+}
+
+} // namespace clast::schedular
+
 #endif

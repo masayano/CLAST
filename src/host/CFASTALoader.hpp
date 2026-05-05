@@ -32,4 +32,20 @@ public:
 	int getFileIndex(void) const;
 };
 
+
+namespace clast::fasta {
+
+bool judgeContinueReading(
+		const std::string& mode,
+		const long pos,
+		const int availableRAMSize,
+		std::string& label,
+		std::string& sequence,
+		int& startIdx,
+		std::vector<CHostFASTA>& FASTA,
+		long& sumReadSize,
+		long& readPos);
+
+} // namespace clast::fasta
+
 #endif

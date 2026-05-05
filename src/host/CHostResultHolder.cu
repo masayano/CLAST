@@ -94,7 +94,7 @@ void CHostResultHolder::fixResult  (void) {
 	time_attack::runLabeled(
 			"\n  ...sorting results", ".......................................finished.",
 			[&] {
-				resultSorting(
+				clast::sorting::resultSorting(
 						d_targetIDArray,
 						d_targetIndexArray,
 						d_queryIDArray,

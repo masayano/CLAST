@@ -51,7 +51,6 @@ set(CLAST_SOURCES
   src/util/fastaStringUtil.cpp
   src/util/fastaDataSizeUtil.cpp
   src/util/utilAddSequence.cu
-  src/util/utilResultSorting.cu
   src/util/utilReverseSeq.cpp
 )
 
@@ -89,6 +88,8 @@ if(BUILD_TESTING)
     tests/unit/device/hit/removeDuplicateResultHitsTest.cpp
     tests/unit/device/hit/alignmentHitsTest.cpp
     tests/unit/device/hit/CDeviceHashTableTest.cpp
+    tests/unit/util/resultSortingTest.cpp
+    tests/unit/host/CHostSchedularTest.cpp
   )
   set_source_files_properties(
     tests/unit/device/hit/sortSeedsTest.cpp
@@ -100,6 +101,8 @@ if(BUILD_TESTING)
     tests/unit/device/hit/removeDuplicateResultHitsTest.cpp
     tests/unit/device/hit/alignmentHitsTest.cpp
     tests/unit/device/hit/CDeviceHashTableTest.cpp
+    tests/unit/util/resultSortingTest.cpp
+    tests/unit/host/CHostSchedularTest.cpp
     PROPERTIES LANGUAGE CUDA
   )
   target_include_directories(clast_unit_tests PRIVATE
@@ -124,9 +127,12 @@ if(BUILD_TESTING)
     tests/unit/util/utilReverseSeqTest.cpp
     tests/unit/util/fastaStringUtilTest.cpp
     tests/unit/util/fastaDataSizeTest.cpp
+    tests/unit/host/CFASTALoaderTest.cpp
     src/util/utilReverseSeq.cpp
     src/util/fastaStringUtil.cpp
     src/util/fastaDataSizeUtil.cpp
+    src/host/CHostFASTA.cpp
+    src/host/CFASTALoader.cpp
   )
   target_include_directories(clast_host_unit_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

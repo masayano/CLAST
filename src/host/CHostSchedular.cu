@@ -10,30 +10,6 @@
 #include <iostream>
 #include <memory>
 
-void moveQueryWindow(
-		const CHostSeqList_query& queryList,
-		const int queryVRAMSize,
-		const int qEndID,
-		const int q_begin,
-		int& q_end) {
-	// these magic number 2 = number of query strand types ('+', '-')
-	const int q_beginIdx = queryList.getGatewayIdx(q_begin*2);
-	while((q_end < qEndID) && (queryList.getGatewayIdx(q_end*2+2) - q_beginIdx < queryVRAMSize)) {
-		++q_end;
-	}
-}
-
-void moveTargetWindow(
-		const CHostSeqList_target& targetList,
-		const int targetVRAMSize,
-		const int tEndID,
-		const int t_begin,
-		int& t_end) {
-	const int t_beginIdx = targetList.getGatewayIdx(t_begin);
-	while((t_end < tEndID) && (targetList.getGatewayIdx(t_end+1) - t_beginIdx < targetVRAMSize)) {
-		++t_end;
-	}
-}
 
 CHostSchedular::CHostSchedular(
 		const CHostSetting& s,
@@ -48,7 +24,7 @@ void CHostSchedular::search(CHostResultHolder& holder) {
 	[[maybe_unused]] int searchTimes_target = 0;
 	const int tEndID = targetList.getGatewaySize() - 1;
 	for(int t_begin = 0, t_end = 1; t_begin < tEndID; t_begin = t_end++) {
-		moveTargetWindow(
+		clast::schedular::moveTargetWindow(
 				targetList,
 				setting.getTargetVRAMSize(),
 				tEndID,
@@ -69,7 +45,7 @@ void CHostSchedular::search(CHostResultHolder& holder) {
 		// this magic number 2 = number of query strand types ('+', '-')
 		const int qEndID = (queryList.getGatewaySize()-1)/2;
 		for(int q_begin = 0, q_end = 1; q_begin < qEndID; q_begin = q_end++) {
-			moveQueryWindow(
+			clast::schedular::moveQueryWindow(
 					queryList,
 					setting.getQueryVRAMSize(),
 					qEndID,

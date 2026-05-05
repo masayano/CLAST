@@ -324,7 +324,7 @@ CDeviceHitList::CDeviceHitList(
 	time_attack::runLabeledWithSuffix(
 			"  ...sorting results", ".......................................finished.",
 			[&] {
-				resultSorting(
+				clast::sorting::resultSorting(
 						targetIDArray,
 						targetIndexArray,
 						queryIDArray,

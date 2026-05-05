@@ -42,6 +42,8 @@ int CFASTALoader::getFileIndex() const { return fileIndex; }
 /************************** non CFASTALoader::CFASTAFileLoader class function ***************************/
 #include "util/common.hpp"
 
+namespace clast::fasta {
+
 bool judgeContinueReading(
 		const std::string& mode,
 		const long pos,
@@ -88,6 +90,8 @@ bool judgeContinueReading(
 	return true;
 }
 
+} // namespace clast::fasta
+
 /******************************* CFASTALoader::CFASTAFileLoader function ********************************/
 
 CFASTALoader::CFASTAFileLoader::CFASTAFileLoader(void) : readPos(0), sumReadSize(0) {}
@@ -112,7 +116,7 @@ bool CFASTALoader::CFASTAFileLoader::read(
 	long tempPos = readPos;
 	while(ifs && std::getline(ifs, buf)) {
 		if(buf.find(">") != std::string::npos) {
-			if(!judgeContinueReading(
+			if(!clast::fasta::judgeContinueReading(
 					mode, tempPos, availableRAMSize,
 					label, sequence, startIdx,
 					FASTA, sumReadSize, readPos)) { return false; }
@@ -127,7 +131,7 @@ bool CFASTALoader::CFASTAFileLoader::read(
 				abort();
 			}
 		} else if(buf.empty()) {
-			if(!judgeContinueReading(
+			if(!clast::fasta::judgeContinueReading(
 					mode, tempPos, availableRAMSize,
 					label, sequence, startIdx,
 					FASTA, sumReadSize, readPos)) { return false; }
@@ -141,7 +145,7 @@ bool CFASTALoader::CFASTAFileLoader::read(
 		tempPos = ifs.tellg();
  	}
 	if(ifs.eof()) {
-		if(!judgeContinueReading(
+		if(!clast::fasta::judgeContinueReading(
 				mode, tempPos, availableRAMSize,
 				label, sequence, startIdx,
 				FASTA, sumReadSize, readPos)) {

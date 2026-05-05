@@ -2,8 +2,14 @@
 #define UTIL_RESULT_SORTING_CUH_
 
 #include <thrust/device_vector.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/sort.h>
+#include <thrust/tuple.h>
 
 typedef thrust::tuple<int,int,int,int,int,int,int,int,double> Hit;
+
+namespace clast::sorting {
+
 struct result {
 	template <class Tuple1, class Tuple2>
 	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
@@ -26,15 +32,49 @@ struct result {
 	}
 };
 
+template <class ThrustVectorInt, class ThrustVectorDouble>
 void resultSorting(
-		thrust::device_vector<int>& targetIDArray,
-		thrust::device_vector<int>& targetIndexArray,
-		thrust::device_vector<int>& queryIDArray,
-		thrust::device_vector<int>& queryIndexArray,
-		thrust::device_vector<int>& tHitLengthArray,
-		thrust::device_vector<int>& qHitLengthArray,
-		thrust::device_vector<int>& matchNumArray,
-		thrust::device_vector<int>& scoreArray,
-		thrust::device_vector<double>& evalueArray);
+		ThrustVectorInt& targetIDArray,
+		ThrustVectorInt& targetIndexArray,
+		ThrustVectorInt& queryIDArray,
+		ThrustVectorInt& queryIndexArray,
+		ThrustVectorInt& tHitLengthArray,
+		ThrustVectorInt& qHitLengthArray,
+		ThrustVectorInt& matchNumArray,
+		ThrustVectorInt& scoreArray,
+		ThrustVectorDouble& evalueArray) {
+	using namespace thrust;
+	thrust::sort(
+			make_zip_iterator(
+					make_tuple(
+							targetIDArray   .begin(),
+							targetIndexArray.begin(),
+							queryIDArray    .begin(),
+							queryIndexArray .begin(),
+							tHitLengthArray .begin(),
+							qHitLengthArray .begin(),
+							matchNumArray   .begin(),
+							scoreArray      .begin(),
+							evalueArray     .begin()
+					)
+			),
+			make_zip_iterator(
+					make_tuple(
+							targetIDArray   .end(),
+							targetIndexArray.end(),
+							queryIDArray    .end(),
+							queryIndexArray .end(),
+							tHitLengthArray .end(),
+							qHitLengthArray .end(),
+							matchNumArray   .end(),
+							scoreArray      .end(),
+							evalueArray     .end()
+					)
+			),
+			result()
+	);
+}
+
+} // namespace clast::sorting
 
 #endif

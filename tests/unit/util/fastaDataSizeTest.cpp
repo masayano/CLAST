@@ -101,3 +101,37 @@ TEST(FastaDataSize, BlankDataLinesContributeZero) {
 	fs::remove(p);
 	EXPECT_EQ(n, 0L + 2L + 0L);
 }
+
+// Non-existent path: ifstream opens in error state, loop never runs → 0 for that file.
+TEST(FastaDataSize, NonExistentFileContributesZero) {
+	EXPECT_EQ(calcTotalDbSizeFromFastaPaths({"/no/such/file.fa"}), 0L);
+}
+
+// Non-existent path mixed with a valid file: only the valid file contributes.
+TEST(FastaDataSize, NonExistentFileMixedWithValidFile) {
+	const fs::path p = writeTempFasta("clast_ut_fasta_mix.fa", ">h\nACGT\n");
+	const long n = calcTotalDbSizeFromFastaPaths(
+			{ "/no/such/file.fa", p.string() });
+	fs::remove(p);
+	EXPECT_EQ(n, 4L);
+}
+
+// File whose last line has no trailing newline: getline still reads it → counted.
+TEST(FastaDataSize, LastLineWithoutNewlineIsCounted) {
+	const fs::path p = writeTempFasta(
+			"clast_ut_fasta_nonl.fa", ">h\nACGT");  // no trailing \n
+	const long n = calcTotalDbSizeFromFastaPaths({p.string()});
+	fs::remove(p);
+	EXPECT_EQ(n, 4L);
+}
+
+// Multi-line sequence: one logical sequence split across several residue lines (typical FASTA).
+// Each residue line contributes its own length; total is their sum.
+TEST(FastaDataSize, MultiLineSequenceSumsAllResidueLines) {
+	// seq1: "AAAA"(4) + "CCCC"(4) + "GG"(2) = 10
+	const fs::path p = writeTempFasta(
+			"clast_ut_fasta_multiline.fa", ">seq1\nAAAA\nCCCC\nGG\n");
+	const long n = calcTotalDbSizeFromFastaPaths({p.string()});
+	fs::remove(p);
+	EXPECT_EQ(n, 10L);
+}
