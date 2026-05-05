@@ -14,7 +14,7 @@
 
 namespace clast::result {
 
-struct PrevRow {
+struct Row {
 	std::string queryLabel;
 	int         queryIndex  = {};
 	char        queryStrand = {};
@@ -26,36 +26,17 @@ struct PrevRow {
 	int         score       = {};
 	double      eValue      = {};
 
-	bool matches(
-			const std::string& qLabel, int qIdx, char qStrand,
-			const std::string& tLabel, int tIdx,
-			int tLen, int qLen, int mNum, int sc, double ev) const {
-		return queryLabel  == qLabel  &&
-		       queryIndex  == qIdx   &&
-		       queryStrand == qStrand &&
-		       targetLabel == tLabel  &&
-		       targetIndex == tIdx   &&
-		       tHitLength  == tLen   &&
-		       qHitLength  == qLen   &&
-		       matchNum    == mNum   &&
-		       score       == sc     &&
-		       eValue      == ev;
-	}
-
-	void set(
-			const std::string& qLabel, int qIdx, char qStrand,
-			const std::string& tLabel, int tIdx,
-			int tLen, int qLen, int mNum, int sc, double ev) {
-		queryLabel  = qLabel;
-		queryIndex  = qIdx;
-		queryStrand = qStrand;
-		targetLabel = tLabel;
-		targetIndex = tIdx;
-		tHitLength  = tLen;
-		qHitLength  = qLen;
-		matchNum    = mNum;
-		score       = sc;
-		eValue      = ev;
+	bool matches(const Row& other) const {
+		return queryLabel  == other.queryLabel  &&
+		       queryIndex  == other.queryIndex  &&
+		       queryStrand == other.queryStrand &&
+		       targetLabel == other.targetLabel  &&
+		       targetIndex == other.targetIndex  &&
+		       tHitLength  == other.tHitLength  &&
+		       qHitLength  == other.qHitLength  &&
+		       matchNum    == other.matchNum    &&
+		       score       == other.score       &&
+		       eValue      == other.eValue;
 	}
 };
 
@@ -81,54 +62,52 @@ inline void printResultToFile(
 	std::ofstream ofs;
 	ofs.open(filename.str().c_str(), std::ios::app);
 
-	PrevRow prev;
+	Row prev;
 	int count = 0;
 	int printedHitsCounter = 0;
 	for(int i = 0; i < queryIDArray.size(); ++i) {
-		const std::string& queryLabel = queryLabelArray[queryIDArray[i]];
-		if(prev.queryLabel != queryLabel) { count = 0; }
+		const Row current{
+			queryLabelArray [queryIDArray[i]],
+			queryIndexArray [i],
+			queryStrandArray[queryIDArray[i]],
+			targetLabelArray[targetIDArray[i]],
+			targetIndexArray[i] + targetStartIdxArray[targetIDArray[i]],
+			tHitLengthArray [i],
+			qHitLengthArray [i],
+			matchNumArray   [i],
+			scoreArray      [i],
+			evalueArray     [i]
+		};
+		if(prev.queryLabel != current.queryLabel) { count = 0; }
 		if(
-			(numberOfOutput == -1) ||          // unlimited.
-			(prev.queryLabel != queryLabel) || // top hit.
-			(count < numberOfOutput)           // other hit.
+			(numberOfOutput == -1) ||                 // unlimited.
+			(prev.queryLabel != current.queryLabel) || // top hit.
+			(count < numberOfOutput)                   // other hit.
 		) {
-			const std::string& targetLabel = targetLabelArray[targetIDArray[i]];
-			const int    queryIndex  = queryIndexArray[i];
-			const char   queryStrand = queryStrandArray[queryIDArray[i]];
-			const int    targetIndex = targetIndexArray[i] + targetStartIdxArray[targetIDArray[i]];
-			const int    tHitLength  = tHitLengthArray[i];
-			const int    qHitLength  = qHitLengthArray[i];
-			const int    matchNum    = matchNumArray[i];
-			const int    score       = scoreArray[i];
-			const double eValue      = evalueArray[i];
-			if(!prev.matches(queryLabel, queryIndex, queryStrand,
-			                 targetLabel, targetIndex,
-			                 tHitLength, qHitLength, matchNum, score, eValue)) {
-				ofs	<< queryLabel
+			if(!prev.matches(current)) {
+				ofs	<< current.queryLabel
 					<< "\t"
-					<< queryIndex
+					<< current.queryIndex
 					<< "\t"
-					<< qHitLength
+					<< current.qHitLength
 					<< "\t"
-					<< queryStrand
+					<< current.queryStrand
 					<< "\t"
-					<< targetLabel
+					<< current.targetLabel
 					<< "\t"
-					<< targetIndex
+					<< current.targetIndex
 					<< "\t"
-					<< tHitLength
+					<< current.tHitLength
 					<< "\t"
-					<< matchNum << "(" << static_cast<double>(matchNum*100)/qHitLength << "%)"
+					<< current.matchNum << "(" << static_cast<double>(current.matchNum*100)/current.qHitLength << "%)"
 					<< "\t"
-					<< score
+					<< current.score
 					<< "\t"
-					<< eValue
+					<< current.eValue
 					<< std::endl;
 				++count;
 				++printedHitsCounter;
-				prev.set(queryLabel, queryIndex, queryStrand,
-				         targetLabel, targetIndex,
-				         tHitLength, qHitLength, matchNum, score, eValue);
+				prev = current;
 			}
 		}
 	}
