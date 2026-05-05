@@ -10,12 +10,12 @@
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-// Build a Hit tuple with the fields that matter for the comparator;
+// Build a tuple with the fields that matter for the comparator;
 // unused fields (targetID, targetIndex, queryIndex, tHitLength, qHitLength,
 // matchNum, evalue) are filled with 0.
-// Hit = tuple<int,int,int,int,int,int,int,int,double>
-//              [0] [1] [2] [3] [4] [5] [6] [7] [8]
-//        targetID  tIdx qID  qIdx tLen qLen match scr  eval
+// tuple<int,int,int,int,int,int,int,int,double>
+//       [0] [1] [2] [3] [4] [5] [6] [7] [8]
+//  targetID tIdx qID  qIdx tLen qLen match scr  eval
 static thrust::tuple<int,int,int,int,int,int,int,int,double>
 makeHit(int queryID, int score) {
 	return thrust::make_tuple(0, 0, queryID, 0, 0, 0, 0, score, 0.0);

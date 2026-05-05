@@ -6,8 +6,6 @@
 #include <thrust/sort.h>
 #include <thrust/tuple.h>
 
-typedef thrust::tuple<int,int,int,int,int,int,int,int,double> Hit;
-
 namespace clast::sorting {
 
 struct result {
