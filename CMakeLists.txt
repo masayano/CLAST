@@ -89,7 +89,9 @@ if(BUILD_TESTING)
     tests/unit/device/hit/alignmentHitsTest.cpp
     tests/unit/device/hit/CDeviceHashTableTest.cpp
     tests/unit/util/resultSortingTest.cpp
+    tests/unit/util/utilAddSequenceTest.cpp
     tests/unit/host/CHostSchedularTest.cpp
+    src/util/utilAddSequence.cu
   )
   set_source_files_properties(
     tests/unit/device/hit/sortSeedsTest.cpp
@@ -102,6 +104,7 @@ if(BUILD_TESTING)
     tests/unit/device/hit/alignmentHitsTest.cpp
     tests/unit/device/hit/CDeviceHashTableTest.cpp
     tests/unit/util/resultSortingTest.cpp
+    tests/unit/util/utilAddSequenceTest.cpp
     tests/unit/host/CHostSchedularTest.cpp
     PROPERTIES LANGUAGE CUDA
   )
@@ -128,15 +131,18 @@ if(BUILD_TESTING)
     tests/unit/util/fastaStringUtilTest.cpp
     tests/unit/util/fastaDataSizeTest.cpp
     tests/unit/host/CFASTALoaderTest.cpp
+    tests/unit/cli/listenCommandLineTest.cpp
     src/util/utilReverseSeq.cpp
     src/util/fastaStringUtil.cpp
     src/util/fastaDataSizeUtil.cpp
     src/host/CHostFASTA.cpp
     src/host/CFASTALoader.cpp
+    src/cli/listenCommandLine.cpp
   )
   target_include_directories(clast_host_unit_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${Boost_INCLUDE_DIRS}
   )
   target_link_libraries(clast_host_unit_tests PRIVATE GTest::gtest_main)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0")
