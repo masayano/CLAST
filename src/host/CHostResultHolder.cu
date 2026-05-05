@@ -122,99 +122,15 @@ void CHostResultHolder::fixResult  (void) {
 void CHostResultHolder::printResultToFile(
 		int numberOfOutput,
 		const std::string& outputFile) const {
-	std::stringstream filename;
-	filename << outputFile;
-
-	std::ofstream ofs;
-	ofs.open(filename.str().c_str(), std::ios::app);
-
-	std::string preQueryLabel;
-	int         preQueryIndex;
-	char        preQueryStrand;
-	std::string preTargetLabel;
-	int         preTargetIndex;
-	int         preTHitLength;
-	int         preQHitLength;
-	int         preMatchNum;
-	int         preScore;
-	double      preEValue;
-
-	int          queryIndex;
-	char         queryStrand;
-	int          targetIndex;
-	int          tHitLength;
-	int          qHitLength;
-	int          matchNum;
-	int          score;
-	double       eValue;
-
-	int count = 0;
-	int printedHitsCounter = 0;
-	for(int i = 0; i < queryIDArray.size(); ++i) {
-		const std::string& queryLabel = queryLabelArray[queryIDArray[i]];
-		if(preQueryLabel != queryLabel) { count = 0; }
-		if(
-			(numberOfOutput == -1) ||        // unlimited.
-			(preQueryLabel != queryLabel) || // top hit.
-			(count < numberOfOutput)         // other hit.
-		) {
-			const std::string& targetLabel = targetLabelArray[targetIDArray[i]];
-			queryIndex  = queryIndexArray[i];
-			queryStrand = queryStrandArray[queryIDArray[i]];
-			targetIndex = targetIndexArray[i] + targetStartIdxArray[targetIDArray[i]];
-			tHitLength  = tHitLengthArray[i];
-			qHitLength  = qHitLengthArray[i];
-			matchNum    = matchNumArray[i];
-			score       = scoreArray[i];
-			eValue      = evalueArray[i];
-			if(
-				(preQueryLabel  != queryLabel ) ||
-				(preQueryIndex  != queryIndex ) ||
-				(preQueryStrand != queryStrand) ||
-				(preTargetLabel != targetLabel) ||
-				(preTargetIndex != targetIndex) ||
-				(preTHitLength  != tHitLength ) ||
-				(preQHitLength  != qHitLength ) ||
-				(preMatchNum    != matchNum   ) ||
-				(preScore       != score      ) ||
-				(preEValue      != eValue     )
-			) {
-				ofs	<< queryLabel
-					<< "\t"
-					<< queryIndex
-					<< "\t"
-					<< qHitLength
-					<< "\t"
-					<< queryStrand
-					<< "\t"
-					<< targetLabel
-					<< "\t"
-					<< targetIndex
-					<< "\t"
-					<< tHitLength
-					<< "\t"
-					<< matchNum << "(" << static_cast<double>(matchNum*100)/qHitLength << "%)"
-					<< "\t"
-					<< score
-					<< "\t"
-					<< eValue
-					<< std::endl;
-				++count;
-				++printedHitsCounter;
-				preQueryLabel  = queryLabel;
-				preQueryIndex  = queryIndex;
-				preQueryStrand = queryStrand;
-				preTargetLabel = targetLabel;
-				preTargetIndex = targetIndex;
-				preTHitLength  = tHitLength;
-				preQHitLength  = qHitLength;
-				preMatchNum    = matchNum;
-				preScore       = score;
-				preEValue      = eValue;
-			}
-		}
-	}
-	std::cout << " " << printedHitsCounter << " hits has printed." << std::endl;
+	clast::result::printResultToFile(
+			numberOfOutput, outputFile,
+			queryLabelArray,    queryStrandArray,
+			targetLabelArray,   targetStartIdxArray,
+			targetIDArray,      targetIndexArray,
+			queryIDArray,       queryIndexArray,
+			tHitLengthArray,    qHitLengthArray,
+			matchNumArray,      scoreArray,
+			evalueArray);
 }
 
 void CHostResultHolder::printResult(

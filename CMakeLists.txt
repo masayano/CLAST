@@ -91,6 +91,7 @@ if(BUILD_TESTING)
     tests/unit/util/resultSortingTest.cpp
     tests/unit/util/utilAddSequenceTest.cpp
     tests/unit/host/CHostSchedularTest.cpp
+    tests/unit/host/CHostResultHolderTest.cpp
     src/util/utilAddSequence.cu
   )
   set_source_files_properties(
@@ -106,6 +107,7 @@ if(BUILD_TESTING)
     tests/unit/util/resultSortingTest.cpp
     tests/unit/util/utilAddSequenceTest.cpp
     tests/unit/host/CHostSchedularTest.cpp
+    tests/unit/host/CHostResultHolderTest.cpp
     PROPERTIES LANGUAGE CUDA
   )
   target_include_directories(clast_unit_tests PRIVATE
