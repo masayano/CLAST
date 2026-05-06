@@ -171,4 +171,9 @@ GNU GPL
     Refactored "krnlAlignment.cu" and "common.hpp".
 
 0.1.5 Nov.24, 2015:  
-    Refactored "CFASTALoader.cpp". 
+    Refactored "CFASTALoader.cpp".
+
+0.2.0 May.6, 2026:  
+    Modernized the codebase. Ported to CUDA 12 with a CMake-based build system,
+    reorganized sources into a structured layout, and substantially expanded the
+    test suite with unit tests and smoke tests.
