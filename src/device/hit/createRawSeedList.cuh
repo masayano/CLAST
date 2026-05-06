@@ -22,13 +22,6 @@ void createRawSeedList(
 
 namespace clast::hit {
 
-// Returns gatewayKey when flg is true, -1 otherwise.
-struct modifyGatewayKey {
-	__host__ __device__ int operator()(const int gatewayKey, const bool flg) const {
-		return flg ? gatewayKey : -1;
-	}
-};
-
 // Looks up a gateway index by key; returns 0 when key is -1 (no hash hit).
 struct fillGatewayIndex {
 	__host__ __device__ int operator()(const int gatewayIndex, const int key) const {

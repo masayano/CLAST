@@ -1,6 +1,6 @@
 // Unit tests for the clast::hit functors and template helpers declared in
 // src/device/hit/createRawSeedList.cuh:
-//   modifyGatewayKey, fillGatewayIndex, fillCellSize,
+//   fillGatewayIndex, fillCellSize,
 //   writeGatewayIndexValues, writeCellSizeValues.
 //
 // writeGatewayKey (CUDA kernel dispatch) and buildRawSeedList (complex
@@ -12,24 +12,6 @@
 #include <gtest/gtest.h>
 
 using clast::test::hit::MakeIntVec;
-
-// ─── modifyGatewayKey ────────────────────────────────────────────────────────
-
-// flg=true → gatewayKey is passed through unchanged.
-TEST(ModifyGatewayKey, ReturnKeyWhenFlagTrue) {
-	clast::hit::modifyGatewayKey f;
-	EXPECT_EQ(f(5, true),  5);
-	EXPECT_EQ(f(0, true),  0);
-	EXPECT_EQ(f(42, true), 42);
-}
-
-// flg=false → always returns -1 regardless of key value.
-TEST(ModifyGatewayKey, ReturnMinusOneWhenFlagFalse) {
-	clast::hit::modifyGatewayKey f;
-	EXPECT_EQ(f(5,  false), -1);
-	EXPECT_EQ(f(0,  false), -1);
-	EXPECT_EQ(f(99, false), -1);
-}
 
 // ─── fillGatewayIndex ────────────────────────────────────────────────────────
 

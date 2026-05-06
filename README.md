@@ -182,3 +182,6 @@ GNU GPL
 
 0.2.1 May.6, 2026:  
     Minor README fixes.
+
+0.2.2 May.6, 2026:  
+    Eliminated dead code.
