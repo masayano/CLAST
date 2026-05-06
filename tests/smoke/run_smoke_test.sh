@@ -40,8 +40,8 @@ def normalize_line(line):
     return "\t".join(normalize_field(f) for f in line.rstrip("\n").split("\t"))
 
 got_path, exp_path = sys.argv[1], sys.argv[2]
-got = sorted(normalize_line(l) for l in open(got_path) if l.strip())
-exp = sorted(normalize_line(l) for l in open(exp_path) if l.strip())
+got = [normalize_line(l) for l in open(got_path) if l.strip()]
+exp = [normalize_line(l) for l in open(exp_path) if l.strip()]
 
 if got != exp:
     print("SMOKE TEST FAILED: output does not match expected")
