@@ -1,34 +1,92 @@
 # CLAST
-CUDA implemented large-scale alignment search tool
 
-# HOW TO USE ?
+CUDA-implemented large-scale alignment search tool.
 
-## Build
+## Build Status
 
-### 0. Dependenies.
+This branch provides a modern Linux build path based on `CMake`.
 
-1. CUDA (version 4.0~)  
-2. "boost library"  
-3. "thrust library (version ~1.7)" <- very important  
-4. NVIDIA GPU (newer than Fermi architecture)
+What is verified in this branch:
 
-### 1. Go to "clast" directory.
+- containerized CUDA development environment with `nvcc`
+- CMake-based Linux build entry
+- successful compile with CUDA 12.4 and Boost 1.74
+- tiny FASTA smoke inputs for runtime verification
 
-### 2. Edit "Makefile" (if you need).
+What is still required for runtime execution:
 
-You only need to edit "CUDA_PATH" and "GENCODE_FLAGS".
+- an NVIDIA driver visible to the runtime environment
+- GPU access for Docker or a native Linux/WSL CUDA setup
 
-### 3. Do "make".
+## Modern Linux Build
 
-### 4. CLAST is now in your current directory.
+### Option 1: Dev Container
 
-### 5. Check PARAMETER_GUIDE and use CLAST
+The repository includes `.devcontainer/` for a CUDA-enabled development
+container based on `nvidia/cuda:12.4.1-devel-ubuntu22.04`.
 
-# CAUTION
+### Option 2: Docker Scripts
+
+Build the development image:
+
+```bash
+docker build -t clast-cuda-dev .devcontainer
+```
+
+Compile CLAST:
+
+```bash
+./scripts/docker-build.sh
+```
+
+Run the current minimal test suite:
+
+```bash
+./scripts/docker-test.sh
+```
+
+Run the tiny smoke test:
+
+```bash
+./scripts/docker-smoke.sh
+```
+
+If the runtime environment has no GPU driver, the smoke script will fail with a
+CUDA driver/runtime mismatch. Compilation should still succeed.
+The `ctest` suite keeps that smoke path as a conditional test: it passes the
+build artifact check and skips runtime smoke when no NVIDIA adapter is visible.
+
+### Option 3: Native Linux
+
+Requirements:
+
+1. CUDA Toolkit with `nvcc`
+2. CMake 3.22+
+3. Boost
+4. Ninja or Make
+
+Build:
+
+```bash
+cmake -S . -B build -G Ninja -DCLAST_CUDA_ARCHITECTURES=75
+cmake --build build -j 4
+```
+
+Override `CLAST_CUDA_ARCHITECTURES` as needed for your GPU generation.
+
+## Usage
+
+Check `PARAMETER_GUIDE` and run `clast` with at least:
+
+- `-t` target FASTA
+- `-q` query FASTA
+- `-o` output path
+
+## CAUTION
 
    Result may contain odd result due to GPU memory error.
 
-# FORM OF RESULT FILE
+## FORM OF RESULT FILE
 
    Result file is sepalated by tab.
 
@@ -43,18 +101,18 @@ You only need to edit "CUDA_PATH" and "GENCODE_FLAGS".
 8: score  
 9: E-value
 
-# FOR LARGE REFERENCE SEQUENCES
+## FOR LARGE REFERENCE SEQUENCES
 
 If your database contains large (refer "-tRAM" and "-tVRAM" option) sequences,  
 you need to preprocess your database by "preprocessDB" before execute CLAST.  
 You can learn how to use it by exeute it without any option.
 
 
-# LICENSE
+## LICENSE
 
 GNU GPL
 
-# VERSION
+## VERSION
 
 0.1.0 Feb.5,  2014:  
     first version.

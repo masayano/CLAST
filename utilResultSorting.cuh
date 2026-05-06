@@ -4,8 +4,9 @@
 #include <thrust/device_vector.h>
 
 typedef thrust::tuple<int,int,int,int,int,int,int,int,double> Hit;
-struct result : public thrust::binary_function<Hit,Hit,bool> {
-	__device__ bool operator() (const Hit& tuple1, const Hit& tuple2) const {
+struct result {
+	template <class Tuple1, class Tuple2>
+	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
 		using namespace thrust;
 		const int qID_1  = get<2>(tuple1) / 2; // magic number "2" ... "+" query and "-" query
 		const int scr_1  = get<7>(tuple1);

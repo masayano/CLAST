@@ -1,5 +1,6 @@
 #include "CHostSeqList.cuh"
 
+#include <thrust/host_vector.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/sequence.h>
 #include <thrust/transform.h>

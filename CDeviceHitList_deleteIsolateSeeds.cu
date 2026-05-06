@@ -12,6 +12,7 @@
 
 /************************************** private ******************************************/
 
+#include <thrust/host_vector.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/remove.h>

@@ -11,8 +11,9 @@ void sortSeeds(
 
 typedef thrust::tuple<int,int,int,int> Seed;
 
-struct measure_distance : public thrust::binary_function<Seed,Seed,bool> {
-	__device__ bool operator() (const Seed& tuple1, const Seed& tuple2) const {
+struct measure_distance {
+	template <class Tuple1, class Tuple2>
+	__host__ __device__ bool operator() (const Tuple1& tuple1, const Tuple2& tuple2) const {
 		using namespace thrust;
 
 		const int tID_1  = get<0>(tuple1);

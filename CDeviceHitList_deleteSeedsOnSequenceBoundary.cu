@@ -12,6 +12,7 @@
 
 /*************************************** private *****************************************/
 
+#include <thrust/host_vector.h>
 #include <thrust/remove.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/permutation_iterator.h>

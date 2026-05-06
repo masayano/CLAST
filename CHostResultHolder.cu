@@ -2,6 +2,7 @@
 
 #include "utilResultSorting.cuh"
 
+#include <thrust/host_vector.h>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
