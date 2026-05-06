@@ -179,3 +179,6 @@ GNU GPL
     Modernized the codebase. Ported to CUDA 12 with a CMake-based build system,
     reorganized sources into a structured layout, and substantially expanded the
     test suite with unit tests and smoke tests.
+
+0.2.1 May.6, 2026:  
+    Minor README fixes.
