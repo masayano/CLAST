@@ -4,7 +4,7 @@ CUDA-implemented large-scale alignment search tool.
 
 ## Build Status
 
-This branch provides a modern Linux build path based on `CMake`.
+This repository provides a modern Linux build path based on `CMake`.
 
 What is verified in this branch:
 
@@ -31,8 +31,10 @@ Current source layout in this branch:
 - `src/kernel/`: CUDA kernel translation units
 - `src/util/`: shared utilities (e.g. reverse complement, FASTA string and file size helpers)
 - `src/test_support/`: test-only support code
-- `tests/unit/device/hit/`: unit tests for `src/device/hit/*` (seed host API and sort; `clast_unit_tests`)
-- `tests/unit/util/`: host-only unit tests, no CUDA (`clast_host_unit_tests`)
+- `tests/unit/device/hit/`: unit tests for `src/device/hit/*`; compiled into `clast_unit_tests` (CUDA required)
+- `tests/unit/util/`: utility unit tests; `resultSortingTest` and `utilAddSequenceTest` compiled into `clast_unit_tests`, the rest into `clast_host_unit_tests`
+- `tests/unit/host/`: host-side unit tests; `CHostSchedularTest` and `CHostResultHolderTest` compiled into `clast_unit_tests`, `CFASTALoaderTest` into `clast_host_unit_tests`
+- `tests/unit/cli/`: CLI unit tests; compiled into `clast_host_unit_tests` (no GPU required)
 - `tests/smoke/`: tiny FASTA files and runtime smoke scripts for `ctest`
 - `tools/preprocess_db/`: database preprocessing helper source
 - `tools/divide_query/`: query-splitting helper source
