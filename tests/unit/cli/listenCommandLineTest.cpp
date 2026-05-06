@@ -31,10 +31,10 @@ static Params parse(std::initializer_list<const char*> args) {
 }
 
 // Wrapper for death tests: avoids repeating all output parameters inline.
-#define PARSE_DEATH(argv_init_list) \
+#define PARSE_DEATH(...) \
 	do { \
 		Params _p; \
-		std::vector<const char*> _av argv_init_list; \
+		std::vector<const char*> _av{__VA_ARGS__}; \
 		EXPECT_DEATH(listenCommandLine( \
 				_av.size(), _av.data(), \
 				_p.tRAM, _p.qRAM, _p.tVRAM, _p.qVRAM, \
@@ -158,25 +158,25 @@ TEST(ListenCommandLine, FullCommandLine) {
 
 // Unknown flag in START state → abort.
 TEST(ListenCommandLine, UnknownFlag_Aborts) {
-	PARSE_DEATH({"prog", "-unknown"});
+	PARSE_DEATH("prog", "-unknown");
 }
 
 // Non-numeric value for an int parameter → abort.
 TEST(ListenCommandLine, BadIntValue_Aborts) {
-	PARSE_DEATH({"prog", "-lMer", "notanumber"});
+	PARSE_DEATH("prog", "-lMer", "notanumber");
 }
 
 // Non-numeric value for a double parameter → abort.
 TEST(ListenCommandLine, BadDoubleValue_Aborts) {
-	PARSE_DEATH({"prog", "-tRAM", "notanumber"});
+	PARSE_DEATH("prog", "-tRAM", "notanumber");
 }
 
 // Repeated -t while already collecting target files → abort.
 TEST(ListenCommandLine, DuplicateTargetFlag_Aborts) {
-	PARSE_DEATH({"prog", "-t", "a.fa", "-t"});
+	PARSE_DEATH("prog", "-t", "a.fa", "-t");
 }
 
 // Repeated -q while already collecting query files → abort.
 TEST(ListenCommandLine, DuplicateQueryFlag_Aborts) {
-	PARSE_DEATH({"prog", "-q", "a.fa", "-q"});
+	PARSE_DEATH("prog", "-q", "a.fa", "-q");
 }
