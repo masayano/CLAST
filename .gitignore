@@ -1,3 +1,8 @@
 .cursor/
+.claude/
 .worktrees/
 build/
+docs/
+build-unit/
+__pycache__/
+*.pyc
