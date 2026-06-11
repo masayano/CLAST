@@ -191,3 +191,8 @@ GNU GPL
     could crash on multi-contig reference targets: a strided overread in
     "createHashIndex" and a permutation_iterator lookup at index -1 in
     "createRawSeedList".
+
+0.2.4 Jun.11, 2026:  
+    Fixed PARAMETER_GUIDE: corrected the "-gap" default value (8, not 16),
+    and documented that "-tVRAM"/"-qVRAM" only take effect up to the chunk
+    size set by "-tRAM"/"-qRAM".

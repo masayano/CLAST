@@ -15,7 +15,7 @@
  -repeat : cut repeat num / work (-1:unlimited). default : 20   max : --
  -width  : Allowable width length
              between seeds at filtering.         default : 100  max : --
- -gap    : Allowable gap.                        default : 16   max : 16   min : 2
+ -gap    : Allowable gap.                        default : 8    max : 16   min : 2
  -numOut : Number of output   (-1: unlimited).   default : -1   max : --
  -local  : select local-alignment(not 0)
               or global-alignment(0).            default : 0
@@ -29,3 +29,9 @@
  -tVRAM  : GPU-VRAM usage for target(MBase). default : 64 max : --
  -qVRAM  : GPU-VRAM usage for query (MBase). default : 2  max : --
  -cutOff : cut off E-value (-1: no cut off). default : 10 max : --
+
+   NOTE: tVRAM (qVRAM) only takes effect up to the size of the chunk
+   already loaded into host RAM by tRAM (qRAM); i.e. tVRAM has no
+   effect if tVRAM >= tRAM (and likewise for qVRAM/qRAM). For
+   large-scale references, raise tRAM/qRAM together with tVRAM/qVRAM
+   (e.g. -tRAM 128 -tVRAM 128) to make a larger VRAM chunk meaningful.
