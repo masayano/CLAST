@@ -185,3 +185,9 @@ GNU GPL
 
 0.2.2 May.6, 2026:  
     Eliminated dead code.
+
+0.2.3 Jun.11, 2026:  
+    Fixed two out-of-bounds device-memory reads (cudaErrorIllegalAddress) that
+    could crash on multi-contig reference targets: a strided overread in
+    "createHashIndex" and a permutation_iterator lookup at index -1 in
+    "createRawSeedList".

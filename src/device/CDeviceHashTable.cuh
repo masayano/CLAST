@@ -51,11 +51,20 @@ void createHashIndex(
 		const ThrustVectorChar& baseArray,
 		ThrustVectorLong& hashIndex) {
 	using namespace thrust;
+
+	// The i-th strided view starts at baseArray.begin()+i, so the window for
+	// the last few stride positions can extend up to (lMerLength-1) elements
+	// past baseArray.end(). Pad a copy so those reads stay in-bounds; padding
+	// bytes are non-ACGT and make the corresponding k-mers -1 via read2bit /
+	// repel_hasOddBase below.
+	ThrustVectorChar paddedBase(baseArray);
+	paddedBase.resize(baseArray.size() + (lMerLength - 1), 0);
+
 	typedef typename ThrustVectorChar::const_iterator Iterator;
 
 	CStridedRange<Iterator> stridedBase[lMerLength];
 	for(int i = 0; i < lMerLength; ++i) {
-		new(stridedBase + i) CStridedRange<Iterator>(baseArray.begin()+i, baseArray.end()+i, strideLength);
+		new(stridedBase + i) CStridedRange<Iterator>(paddedBase.begin()+i, paddedBase.end()+i, strideLength);
 	}
 
 	const int hashIndexSize = static_cast<int>(baseArray.size()) / strideLength;
