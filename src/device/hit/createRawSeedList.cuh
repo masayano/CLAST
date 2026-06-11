@@ -36,6 +36,15 @@ struct fillCellSize {
 	}
 };
 
+// Maps key == -1 (no hash hit) to 0 so it can be used as a permutation index
+// without reading out of bounds. fillGatewayIndex/fillCellSize discard the
+// looked-up value whenever the original key is -1 anyway.
+struct clampMissingKey {
+	__host__ __device__ int operator()(const int key) const {
+		return key < 0 ? 0 : key;
+	}
+};
+
 // For each entry in gatewayKeyArray, writes hashGatewayIndexArray[key] into
 // gatewayIndexArray, or 0 when key is -1.
 // Precondition: every key >= 0 is a valid index into hashGatewayIndexArray.
@@ -44,11 +53,17 @@ void writeGatewayIndexValues(
 		const ThrustVectorInt& hashGatewayIndexArray,
 		const ThrustVectorInt& gatewayKeyArray,
 		ThrustVectorInt& gatewayIndexArray) {
+	ThrustVectorInt safeKeyArray(gatewayKeyArray.size());
+	thrust::transform(
+		gatewayKeyArray.begin(), gatewayKeyArray.end(),
+		safeKeyArray.begin(),
+		clampMissingKey());
+
 	thrust::transform(
 		thrust::make_permutation_iterator(
-			hashGatewayIndexArray.begin(), gatewayKeyArray.begin()),
+			hashGatewayIndexArray.begin(), safeKeyArray.begin()),
 		thrust::make_permutation_iterator(
-			hashGatewayIndexArray.begin(), gatewayKeyArray.end()),
+			hashGatewayIndexArray.begin(), safeKeyArray.end()),
 		gatewayKeyArray.begin(),
 		gatewayIndexArray.begin(),
 		fillGatewayIndex());
@@ -62,11 +77,17 @@ void writeCellSizeValues(
 		const ThrustVectorInt& hashCellSizeArray,
 		const ThrustVectorInt& gatewayKeyArray,
 		ThrustVectorInt& cellSizeArray) {
+	ThrustVectorInt safeKeyArray(gatewayKeyArray.size());
+	thrust::transform(
+		gatewayKeyArray.begin(), gatewayKeyArray.end(),
+		safeKeyArray.begin(),
+		clampMissingKey());
+
 	thrust::transform(
 		thrust::make_permutation_iterator(
-			hashCellSizeArray.begin(), gatewayKeyArray.begin()),
+			hashCellSizeArray.begin(), safeKeyArray.begin()),
 		thrust::make_permutation_iterator(
-			hashCellSizeArray.begin(), gatewayKeyArray.end()),
+			hashCellSizeArray.begin(), safeKeyArray.end()),
 		gatewayKeyArray.begin(),
 		cellSizeArray.begin(),
 		fillCellSize());

@@ -89,6 +89,19 @@ TEST(WriteGatewayIndexValues, RepeatedKeyProducesSameValue) {
 	EXPECT_EQ(out[2], 6);
 }
 
+// key == -1 (no hash hit) must not read hash[-1] (one element before the
+// buffer); it is mapped to 0 for the lookup, matching fillGatewayIndex's
+// "key == -1 -> 0" rule.
+TEST(WriteGatewayIndexValues, MissingKeyDoesNotReadOutOfBounds) {
+	auto hash = MakeIntVec({10, 20, 30});
+	auto keys = MakeIntVec({-1, 1, -1});
+	auto out  = MakeIntVec({0, 0, 0});
+	clast::hit::writeGatewayIndexValues(hash, keys, out);
+	EXPECT_EQ(out[0], 0);
+	EXPECT_EQ(out[1], 20);
+	EXPECT_EQ(out[2], 0);
+}
+
 // ─── writeCellSizeValues ─────────────────────────────────────────────────────
 
 // Empty input → output stays empty; no crash.
@@ -131,4 +144,17 @@ TEST(WriteCellSizeValues, RepeatedKeyProducesSameValue) {
 	EXPECT_EQ(out[0], 3);
 	EXPECT_EQ(out[1], 3);
 	EXPECT_EQ(out[2], 3);
+}
+
+// key == -1 (no hash hit) must not read hash[-1] (one element before the
+// buffer); it is mapped to 0 for the lookup, matching fillCellSize's
+// "key == -1 -> 0" rule.
+TEST(WriteCellSizeValues, MissingKeyDoesNotReadOutOfBounds) {
+	auto hash = MakeIntVec({3, 5, 7});
+	auto keys = MakeIntVec({-1, 2, -1});
+	auto out  = MakeIntVec({0, 0, 0});
+	clast::hit::writeCellSizeValues(hash, keys, out);
+	EXPECT_EQ(out[0], 0);
+	EXPECT_EQ(out[1], 7);
+	EXPECT_EQ(out[2], 0);
 }

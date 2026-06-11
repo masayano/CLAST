@@ -328,3 +328,23 @@ TEST(CreateHashIndex, IncompleteTrailingKmerIgnored) {
 	ASSERT_EQ(result.size(), 1u);
 	EXPECT_EQ(result[0], 6L); // ACG
 }
+
+// Overlapping windows (stride < lMerLength): the i-th strided view starts at
+// baseArray.begin()+i, so windows near the end need bytes past base.end().
+// Those reads must stay in-bounds and the affected k-mers become -1 (treated
+// as containing an odd base), rather than reading out-of-bounds memory.
+// "ACGT" with lMer=3, stride=1 → hashIndexSize = 4/1 = 4 windows:
+//   k=0: "ACG" = 00 01 10 = 6
+//   k=1: "CGT" = 01 10 11 = 27
+//   k=2: "GT" + 1 padding byte  → odd base → -1
+//   k=3: "T" + 2 padding bytes  → odd base → -1
+TEST(CreateHashIndex, OverlappingStrideTrailingWindowsBecomeMinusOne) {
+	auto base = MakeCharVec("ACGT");
+	thrust::host_vector<long> result;
+	clast::hash::createHashIndex(3, 1, base, result);
+	ASSERT_EQ(result.size(), 4u);
+	EXPECT_EQ(result[0],  6L); // ACG
+	EXPECT_EQ(result[1], 27L); // CGT
+	EXPECT_EQ(result[2], -1L); // GT + padding
+	EXPECT_EQ(result[3], -1L); // T + padding
+}
