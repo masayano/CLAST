@@ -196,3 +196,7 @@ GNU GPL
     Fixed PARAMETER_GUIDE: corrected the "-gap" default value (8, not 16),
     and documented that "-tVRAM"/"-qVRAM" only take effect up to the chunk
     size set by "-tRAM"/"-qRAM".
+
+0.2.5 Jun.12, 2026:  
+    CMakeLists.txt now defaults CMAKE_BUILD_TYPE to "Release" when not
+    specified, so optimization flags ("-O2"/"-O3") are enabled by default.

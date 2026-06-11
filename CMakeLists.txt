@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 set(CLAST_CUDA_ARCHITECTURES "75" CACHE STRING
   "Semicolon-separated CUDA architectures for modern Linux builds.")
 set(CMAKE_CUDA_ARCHITECTURES "${CLAST_CUDA_ARCHITECTURES}" CACHE STRING
