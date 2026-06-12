@@ -200,3 +200,11 @@ GNU GPL
 0.2.5 Jun.12, 2026:  
     CMakeLists.txt now defaults CMAKE_BUILD_TYPE to "Release" when not
     specified, so optimization flags ("-O2"/"-O3") are enabled by default.
+
+0.2.6 Jun.13, 2026:  
+    Reserve "indexArray"/"IDArray"/"baseArray" capacity up front in
+    "CHostSeqList_query::add"/"CHostSeqList_target::add" based on the
+    total sequence length, and refactored "addSequence" to resize()
+    and sequence() directly into the reserved buffers instead of
+    building temporary vectors, reducing reallocation overhead when
+    loading large target/query files.
