@@ -8,6 +8,15 @@
 void CHostSeqList_target::add(
 		const CHostSetting& setting,
 		const std::vector<CHostFASTA>& seq) {
+	const int jointLength = setting.getLMerLength() - 1;
+	size_t addLengthTotal = 0;
+	for(std::vector<CHostFASTA>::const_iterator i = seq.begin(); i != seq.end(); ++i) {
+		addLengthTotal += (*i).getSequence().size() + jointLength;
+	}
+	indexArray.reserve(indexArray.size() + addLengthTotal);
+	IDArray   .reserve(IDArray   .size() + addLengthTotal);
+	baseArray .reserve(baseArray .size() + addLengthTotal);
+
 	for(std::vector<CHostFASTA>::const_iterator i = seq.begin(); i != seq.end(); ++i) {
 		using namespace thrust;
 

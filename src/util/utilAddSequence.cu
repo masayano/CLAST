@@ -13,31 +13,20 @@ void addSequence(
 	using namespace thrust;
 
 	const int jointLength = lMerLength - 1;
+	const int addLength = seqLength + jointLength;
+	const int newID = indexArray.empty() ? 0 : IDArray.back() + 1;
+	const size_t oldSize = indexArray.size();
 
-	host_vector<int> newIdxArray(seqLength + jointLength);
-	sequence(newIdxArray.begin(), newIdxArray.end());
+	indexArray.resize(oldSize + addLength);
+	sequence(indexArray.begin() + oldSize, indexArray.end());
 
-	if(indexArray.empty()){
-		indexArray.assign(newIdxArray.begin(), newIdxArray.end());
-		IDArray   .assign(seqLength + jointLength, 0);
-		baseArray .assign(FASTAseq.begin(), FASTAseq.end());
-	} else {
-		indexArray.insert(
-				indexArray.end(),
-				newIdxArray.begin(),
-				newIdxArray.end()
-		);
-		IDArray.insert(
-				IDArray.end(),
-				seqLength + jointLength,
-				IDArray.back() + 1
-		);
-		baseArray.insert(
-				baseArray.end(),
-				FASTAseq .begin(),
-				FASTAseq .end()
-		);
-	}
+	IDArray.resize(oldSize + addLength, newID);
+
+	baseArray.insert(
+			baseArray.end(),
+			FASTAseq .begin(),
+			FASTAseq .end()
+	);
 	/* overlap (length : jointLength) */
 	baseArray.insert(
 			baseArray.end(),
