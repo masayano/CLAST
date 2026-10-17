@@ -1,8 +1,7 @@
 .cursor/
 .claude/
 .worktrees/
-build/
+build*/
 docs/
-build-unit/
 __pycache__/
 *.pyc
