@@ -208,3 +208,8 @@ GNU GPL
     and sequence() directly into the reserved buffers instead of
     building temporary vectors, reducing reallocation overhead when
     loading large target/query files.
+
+0.2.7 Nov.11, 2026:  
+    Fixed the build with CUDA 13.0: qualified an ambiguous "transform" call
+    in "alignmentHits.cuh" as "thrust::transform", and added a missing
+    "<algorithm>" include in a unit test. Compiles with CUDA 12.6 and 13.0.
