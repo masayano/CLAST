@@ -81,7 +81,7 @@ void sortBeforeAlignBackWard(
 		ThrustVectorInt& scoreArray) {
 	using namespace thrust;
 	ThrustVectorInt alignmentSize(targetIDArray.size());
-	transform(
+	thrust::transform(
 		make_zip_iterator(make_tuple(
 			make_permutation_iterator(qLengthArray.begin() - q_begin, queryIDArray.begin()),
 			queryIndexArray .begin(),

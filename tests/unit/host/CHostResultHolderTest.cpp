@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <thrust/host_vector.h>
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <vector>
